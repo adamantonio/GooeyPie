@@ -32,10 +32,15 @@ class GooeyPieApp(GooeyPieContainer):
         req_w = self._grid_master.winfo_reqwidth() + (2 * CONTAINER_PADDING)
         req_h = self._grid_master.winfo_reqheight() + (2 * CONTAINER_PADDING)
 
+        # Get the scaling factor applied by CTk
+        scaling = self._ctk_object._get_window_scaling()
+
         w = self._width if self._width is not None else req_w
         h = self._height if self._height is not None else req_h
         
-        self._ctk_object.geometry(f"{w}x{h}")
+        # Divide by scaling factor because CTk geometry() and minsize() apply scaling themselves
+        # but winfo_reqwidth/height return physical pixels (already scaled)
+        self._ctk_object.geometry(f"{int(w/scaling)}x{int(h/scaling)}")
 
     @property
     def title(self):
@@ -94,7 +99,9 @@ class GooeyPieApp(GooeyPieContainer):
         min_w = self._grid_master.winfo_reqwidth() + (2 * CONTAINER_PADDING)
         min_h = self._grid_master.winfo_reqheight() + (2 * CONTAINER_PADDING)
         
-        self._ctk_object.minsize(min_w, min_h)
+        # Correct for scaling
+        scaling = self._ctk_object._get_window_scaling()
+        self._ctk_object.minsize(int(min_w/scaling), int(min_h/scaling))
         
         # Apply initial geometry if properties were set
         self._update_geometry()
