@@ -4,6 +4,8 @@ import gooeypie as gp
 def disable(event):
     event.widget.disabled = True
 
+def change_text(event):
+    event.widget.text = "Text Changed"
 
 app = gp.GooeyPieApp("Buttons Test")
 # app.theme = "light"
@@ -14,7 +16,7 @@ button_disabled = gp.Button("Disabled button", None)
 button_disabled.disabled = True
 button_disabled.style.disabled_text_color = "darkgray"
 
-button_outline = gp.Button("Outline button", None)
+button_outline = gp.Button("Outline button", change_text)
 button_outline.style.border_color = "violet"
 button_outline.style.border_width = 2
 
@@ -30,7 +32,7 @@ button_pill = gp.Button("Pill button", None)
 button_pill.style.corner_radius = 20
 
 button_spacious = gp.Button("Spacious button", None)
-button_spacious.style.border_spacing = 20
+button_spacious.style.padding = 20
 
 button_large = gp.Button("Large button", None)
 button_large.style.text_color = "white"

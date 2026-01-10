@@ -10,6 +10,7 @@ app = gp.GooeyPieApp("Image Button Test")
 # 'test_icon.png' must exist in the same folder as this script
 img_btn = gp.ImageButton("../images/test_icon.png", on_image_click, text="With Text")
 img_btn.image_position = "top"
+img_btn.style.padding = 10
 lbl = gp.Label("Click the button")
 
 # --- Layout ---
