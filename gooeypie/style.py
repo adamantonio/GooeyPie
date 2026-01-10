@@ -1,9 +1,69 @@
 import customtkinter as ctk
+import tkinter.font
 
 class GooeyPieStyle:
     """Helper class to access widget style properties."""
+    
+    _available_fonts = None
+
     def __init__(self, widget):
         self._widget = widget
+
+    @classmethod
+    def _get_available_fonts(cls):
+        if cls._available_fonts is None:
+            try:
+                # This requires a Tk root window to be initialized
+                cls._available_fonts = set(f.lower() for f in tkinter.font.families())
+            except Exception:
+                # If no root window yet, return empty set or default
+                return set()
+        return cls._available_fonts
+
+    def _resolve_font_family(self, font_spec):
+        """Resolves a font specification (name, tuple, or keyword) to an available system font."""
+        if not font_spec:
+            return "Arial"
+
+        # Normalize to tuple of candidates
+        candidates = []
+        if isinstance(font_spec, (str)):
+            candidates.append(font_spec)
+        elif isinstance(font_spec, (tuple, list)):
+            candidates.extend(font_spec)
+        else:
+            return "Arial"
+
+        available = self._get_available_fonts()
+        
+        # Keyword mappings
+        keywords = {
+            'serif': ["Times New Roman", "Times", "Georgia", "serif"],
+            'sans-serif': ["Arial", "Helvetica", "Verdana", "sans-serif"],
+            'monospace': ["Courier New", "Consolas", "Monaco", "monospace"],
+            'system': ["Segoe UI", "San Francisco", "Arial"], # Platform dependentish
+        }
+
+        for family in candidates:
+            # Check keywords first
+            expanded = keywords.get(family.lower(), [family])
+            
+            for f in expanded:
+                if f.lower() in available:
+                    return f
+                
+                # Some fonts might be passed that are valid but not in the set 
+                # (e.g. if set was empty due to no root). 
+                # If available is empty, we can't verify, so we might just assume first valid string.
+                # But typically we want to return the first match.
+        
+        # If available fonts was empty (no root), checking is impossible.
+        # Just return the first candidate to be safe, or default.
+        if not available:
+            return candidates[0]
+            
+        # Default if nothing matched
+        return "Arial"
 
     def _get_font(self):
         font = self._get('font')
@@ -18,7 +78,9 @@ class GooeyPieStyle:
         # Normalize current font to object or create new one
         if isinstance(current_font, ctk.CTkFont):
             new_font = current_font
-            if family: new_font.configure(family=family)
+            if family: 
+                resolved = self._resolve_font_family(family)
+                new_font.configure(family=resolved)
             if size: new_font.configure(size=size)
         else:
             # It's a tuple or string (Tkinter style) or None
@@ -28,14 +90,15 @@ class GooeyPieStyle:
                 if len(current_font) > 0: c_family = current_font[0]
                 if len(current_font) > 1: c_size = current_font[1]
             elif isinstance(current_font, str):
-                # Simple string parsing might be needed, but CTk often uses tuples
                 pass 
                 
-            new_family = family if family else c_family
+            new_family_spec = family if family else c_family
+            resolved_family = self._resolve_font_family(new_family_spec)
+            
             new_size = size if size else c_size
             
             # Create a CTkFont object for better handling
-            new_font = ctk.CTkFont(family=new_family, size=new_size)
+            new_font = ctk.CTkFont(family=resolved_family, size=new_size)
 
         self._set('font', new_font)
 
@@ -116,3 +179,74 @@ class GooeyPieStyle:
     def justify(self): return self._get('justify')
     @justify.setter
     def justify(self, v): self._set('justify', v)
+
+    @property
+    def button_color(self): return self._get('button_color')
+    @button_color.setter
+    def button_color(self, v): self._set('button_color', v)
+
+    @property
+    def button_hover_color(self): return self._get('button_hover_color')
+    @button_hover_color.setter
+    def button_hover_color(self, v): self._set('button_hover_color', v)
+
+    @property
+    def dropdown_bg_color(self): return self._get('dropdown_fg_color')
+    @dropdown_bg_color.setter
+    def dropdown_bg_color(self, v): self._set('dropdown_fg_color', v)
+
+    @property
+    def dropdown_hover_color(self): return self._get('dropdown_hover_color')
+    @dropdown_hover_color.setter
+    def dropdown_hover_color(self, v): self._set('dropdown_hover_color', v)
+
+    @property
+    def dropdown_text_color(self): return self._get('dropdown_text_color')
+    @dropdown_text_color.setter
+    def dropdown_text_color(self, v): self._set('dropdown_text_color', v)
+
+    def _update_dropdown_font(self, family=None, size=None):
+        # CTkComboBox uses 'dropdown_font' which expects a tuple or font object
+        current_font = self._get('dropdown_font')
+        
+        if isinstance(current_font, ctk.CTkFont):
+            new_font = current_font
+            if family: 
+                resolved = self._resolve_font_family(family)
+                new_font.configure(family=resolved)
+            if size: new_font.configure(size=size)
+        else:
+            c_family, c_size = "Arial", 12
+            if isinstance(current_font, (tuple, list)):
+                if len(current_font) > 0: c_family = current_font[0]
+                if len(current_font) > 1: c_size = current_font[1]
+            
+            new_family = family if family else c_family
+            resolved_family = self._resolve_font_family(new_family)
+            new_size = size if size else c_size
+            
+            new_font = ctk.CTkFont(family=resolved_family, size=new_size)
+
+        self._set('dropdown_font', new_font)
+
+    @property
+    def dropdown_font_name(self):
+        font = self._get('dropdown_font')
+        if isinstance(font, ctk.CTkFont): return font.cget("family")
+        if isinstance(font, (tuple, list)) and len(font) > 0: return font[0]
+        return "Arial"
+
+    @dropdown_font_name.setter
+    def dropdown_font_name(self, v):
+        self._update_dropdown_font(family=v)
+
+    @property
+    def dropdown_font_size(self):
+        font = self._get('dropdown_font')
+        if isinstance(font, ctk.CTkFont): return font.cget("size")
+        if isinstance(font, (tuple, list)) and len(font) > 1: return font[1]
+        return 12
+
+    @dropdown_font_size.setter
+    def dropdown_font_size(self, v):
+        self._update_dropdown_font(size=v)
