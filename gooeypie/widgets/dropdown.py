@@ -39,14 +39,103 @@ class Dropdown(GooeyPieWidget):
         if self._constructor_kwargs.get('state') != 'disabled':
             self._constructor_kwargs['state'] = 'readonly'
 
+        if 'hover_color' in self._constructor_kwargs:
+            self._hover_color = self._constructor_kwargs.pop('hover_color')
+
         self._ctk_object = ctk.CTkComboBox(master, **self._constructor_kwargs)
         
-        
+        # Bind unified hover events to all components
+        components = [self._ctk_object]
+        if hasattr(self._ctk_object, '_entry'):
+            components.append(self._ctk_object._entry)
+            # Click to open
+            self._ctk_object._entry.bind('<Button-1>', self._on_entry_click, add='+')
+            # Use arrow cursor instead of text cursor
+            self._ctk_object._entry.configure(cursor="arrow")
+            
+        if hasattr(self._ctk_object, '_canvas'):
+            components.append(self._ctk_object._canvas)
+            
+        for comp in components:
+            comp.bind('<Enter>', self._on_enter, add='+')
+            comp.bind('<Leave>', self._on_leave, add='+')
+
         if self._initial_selected is not None:
              self.selected = self._initial_selected
-        elif not self._constructor_kwargs['values']:
+        elif not self._constructor_kwargs.get('values'):
              # If no values and no initial selection, CTk defaults to "CTkComboBox" text. Clear it.
              self._ctk_object.set("")
+
+    def _set_property(self, key, value):
+        if key == 'hover_color':
+            self._hover_color = value
+        else:
+            super()._set_property(key, value)
+
+    def _apply_pending_properties(self):
+        # Handle hover_color manually to prevent it reaching configure()
+        if 'hover_color' in self._pending_properties:
+            self._hover_color = self._pending_properties.pop('hover_color')
+        super()._apply_pending_properties()
+
+    def _on_enter(self, event):
+        if self.disabled:
+            return
+
+        # 1. Apply Button Hover Color
+        try:
+            btn_hover = self._ctk_object.cget('button_hover_color')
+            if btn_hover:
+                # Capture normal button color if not already captured
+                # Use a flag to ensure we don't capture the hover color itself if re-entering
+                if not hasattr(self, '_temp_button_color'):
+                    self._temp_button_color = self._ctk_object.cget('button_color')
+                
+                self._ctk_object.configure(button_color=btn_hover)
+        except Exception:
+            pass
+
+        # 2. Apply Background (FG) Hover Color
+        if hasattr(self, '_hover_color'):
+             if not hasattr(self, '_temp_fg_color'):
+                self._temp_fg_color = self._ctk_object.cget('fg_color')
+             self._ctk_object.configure(fg_color=self._hover_color)
+
+    def _on_leave(self, event):
+        if self.disabled:
+            return
+
+        # Check if mouse is still inside the widget tree (Entry, Canvas, or Frame)
+        # This prevents flickering when moving between Entry and Canvas
+        try:
+            x, y = self._ctk_object.winfo_pointerxy()
+            widget_under_mouse = self._ctk_object.winfo_containing(x, y)
+            
+            # If the widget under mouse is one of our components, don't leave yet
+            if widget_under_mouse is self._ctk_object or \
+               (hasattr(self._ctk_object, '_entry') and widget_under_mouse is self._ctk_object._entry) or \
+               (hasattr(self._ctk_object, '_canvas') and widget_under_mouse is self._ctk_object._canvas):
+                return
+        except Exception:
+            # If checking fails (e.g. widget destroyed), proceed to restore
+            pass
+
+        # Restore button color
+        if hasattr(self, '_temp_button_color'):
+            self._ctk_object.configure(button_color=self._temp_button_color)
+            del self._temp_button_color
+
+        # Restore fg color
+        if hasattr(self, '_temp_fg_color'):
+            self._ctk_object.configure(fg_color=self._temp_fg_color)
+            del self._temp_fg_color
+
+    def _on_entry_click(self, event):
+        if self.disabled:
+            return
+        # Open the dropdown menu
+        if hasattr(self._ctk_object, '_open_dropdown_menu'):
+            self._ctk_object._open_dropdown_menu()
 
     def _on_change(self, value):
         """Internal callback to handle CTk command and fire 'change' event"""

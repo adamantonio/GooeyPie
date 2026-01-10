@@ -72,7 +72,7 @@ class GooeyPieStyle:
             return ("Arial", 12)
         return font
 
-    def _update_font(self, family=None, size=None):
+    def _update_font(self, family=None, size=None, weight=None, slant=None):
         current_font = self._get_font()
         
         # Normalize current font to object or create new one
@@ -82,13 +82,20 @@ class GooeyPieStyle:
                 resolved = self._resolve_font_family(family)
                 new_font.configure(family=resolved)
             if size: new_font.configure(size=size)
+            if weight: new_font.configure(weight=weight)
+            if slant: new_font.configure(slant=slant)
         else:
             # It's a tuple or string (Tkinter style) or None
-            # e.g. ("Arial", 12)
-            c_family, c_size = "Arial", 12
+            # e.g. ("Arial", 12) or ("Arial", 12, "bold", "italic")
+            c_family, c_size, c_weight, c_slant = "Arial", 12, "normal", "roman"
             if isinstance(current_font, (tuple, list)):
                 if len(current_font) > 0: c_family = current_font[0]
                 if len(current_font) > 1: c_size = current_font[1]
+                if len(current_font) > 2: 
+                    # Simplify tkinter style string parsing for now
+                    style_str = str(current_font[2]).lower()
+                    if "bold" in style_str: c_weight = "bold"
+                    if "italic" in style_str: c_slant = "italic"
             elif isinstance(current_font, str):
                 pass 
                 
@@ -96,9 +103,11 @@ class GooeyPieStyle:
             resolved_family = self._resolve_font_family(new_family_spec)
             
             new_size = size if size else c_size
+            new_weight = weight if weight else c_weight
+            new_slant = slant if slant else c_slant
             
             # Create a CTkFont object for better handling
-            new_font = ctk.CTkFont(family=resolved_family, size=new_size)
+            new_font = ctk.CTkFont(family=resolved_family, size=new_size, weight=new_weight, slant=new_slant)
 
         self._set('font', new_font)
 
@@ -124,6 +133,35 @@ class GooeyPieStyle:
     def font_size(self, v):
         self._update_font(size=v)
 
+    @property
+    def font_weight(self):
+        font = self._get_font()
+        if isinstance(font, ctk.CTkFont): return font.cget("weight")
+        # Legacy tuple support (imperfect but better than nothing)
+        if isinstance(font, (tuple, list)) and len(font) > 2: 
+             if "bold" in str(font[2]).lower(): return "bold"
+        return "normal"
+
+    @font_weight.setter
+    def font_weight(self, v):
+        self._update_font(weight=v)
+
+    @property
+    def font_style(self):
+        font = self._get_font()
+        val = "roman"
+        if isinstance(font, ctk.CTkFont): val = font.cget("slant")
+        elif isinstance(font, (tuple, list)) and len(font) > 2:
+            if "italic" in str(font[2]).lower(): val = "italic"
+        
+        return "italic" if val == "italic" else "normal"
+
+    @font_style.setter
+    def font_style(self, v):
+        # Map "normal" to "roman" for CTkFont
+        slant = "italic" if v == "italic" else "roman"
+        self._update_font(slant=slant)
+
     def _get(self, key):
         return self._widget._get_property(key)
 
@@ -141,9 +179,9 @@ class GooeyPieStyle:
     def border_width(self, v): self._set('border_width', v)
 
     @property
-    def border_spacing(self): return self._get('border_spacing')
-    @border_spacing.setter
-    def border_spacing(self, v): self._set('border_spacing', v)
+    def padding(self): return self._get('border_spacing')
+    @padding.setter
+    def padding(self, v): self._set('border_spacing', v)
 
     @property
     def bg_color(self): return self._get('fg_color')
