@@ -35,6 +35,6 @@ app.add(e2, 2, 1)
 app.add(btn, 4, 1)
 
 # Check logic also without button press for initial state
-# e2.focus() # Should start with focus
+e2.focus() # Should start with focus
 
 app.run()

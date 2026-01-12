@@ -5,11 +5,11 @@ app.width = 500
 app.height = 400
 
 # --- Widget Creation ---
-btn_tl = gp.Button("Top Left")
-btn_tr = gp.Button("Top Right")
-btn_bl = gp.Button("Bottom Left")
-btn_br = gp.Button("Bottom Right")
-btn_c = gp.Button("Center")
+btn_tl = gp.Button("Top Left", None)
+btn_tr = gp.Button("Top Right", None)
+btn_bl = gp.Button("Bottom Left", None)
+btn_br = gp.Button("Bottom Right", None)
+btn_c = gp.Button("Center", None)
 
 # --- Layout ---
 # Make cells big so we can see alignment

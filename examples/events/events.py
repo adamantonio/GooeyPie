@@ -27,6 +27,8 @@ app.set_column_weight(3, 1)
 lbl = gp.Label("I am a simple label")
 btn = gp.Button("I am a simple button", log_event)
 chk = gp.Checkbox("I am a simple checkbox")
+dd = gp.Dropdown([f"Option {n}" for n in range(1,4)])
+
 entry = gp.Entry()
 entry.width = 200
 
@@ -62,12 +64,19 @@ detail_lbl = gp.Label("Event Details")
 detail_frame.add(detail_lbl, 1, 1)
 detail_frame.height = 500
 
-app.add(lbl, 1, 1)
-app.add(btn, 1, 2)
-app.add(chk, 1, 3)
-app.add(entry, 1, 4)
-app.add(log_frame, 2, 1, row_span=4, expand_horizontal=True, expand_vertical=True)
-app.add(detail_frame, 3, 1, row_span=4, expand_horizontal=True, expand_vertical=True)
+test_widgets = [
+    lbl,
+    btn,
+    chk,
+    entry,
+    dd
+]
+
+for pos, widget in enumerate(test_widgets, 1):
+    app.add(widget, 1, pos)
+
+app.add(log_frame, 2, 1, row_span=len(test_widgets), expand_horizontal=True, expand_vertical=True)
+app.add(detail_frame, 3, 1, row_span=len(test_widgets), expand_horizontal=True, expand_vertical=True)
 
 app.run()
 

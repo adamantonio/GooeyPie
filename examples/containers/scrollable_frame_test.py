@@ -16,7 +16,7 @@ for i in range(1, 11):
     lbl = gp.Label(f"Label {i}")
     scroll_frame.add(lbl, 0, i)
     
-    btn = gp.Button(f"Button {i}", command=on_button_click)
+    btn = gp.Button(f"Button {i}", on_button_click)
     scroll_frame.add(btn, 1, i)
 
 app.run()
