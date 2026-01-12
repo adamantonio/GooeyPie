@@ -38,3 +38,4 @@ venv-laptop/
 # Other
 .DS_Store
 GEMINI.md
+.python-version

@@ -4,8 +4,6 @@ import customtkinter as ctk
 from PIL import Image as PILImage
 from .widget import GooeyPieWidget
 
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
 
 class Image(GooeyPieWidget):
     """A widget that displays an image."""
@@ -39,6 +37,13 @@ class Image(GooeyPieWidget):
         full_path = self._resolve_path(path)
         try:
             if full_path.lower().endswith('.svg'):
+                try:
+                    from svglib.svglib import svg2rlg
+                    from reportlab.graphics import renderPM
+                except ImportError:
+                    print(f"Error: SVG support requires extra dependencies. Install with 'pip install gooeypie[svg]'")
+                    return None
+
                 # Convert SVG to ReportLab drawing
                 drawing = svg2rlg(full_path)
                 # Render to PIL Image

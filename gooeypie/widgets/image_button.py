@@ -4,8 +4,6 @@ import customtkinter as ctk
 from PIL import Image
 from .button import Button
 
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
 
 class ImageButton(Button):
     def __init__(self, image_path, event_function, text="", **kwargs):
@@ -29,6 +27,13 @@ class ImageButton(Button):
         full_path = self._resolve_path(path)
         try:
             if full_path.lower().endswith('.svg'):
+                try:
+                    from svglib.svglib import svg2rlg
+                    from reportlab.graphics import renderPM
+                except ImportError:
+                    print(f"Error: SVG support requires extra dependencies. Install with 'pip install gooeypie[svg]'")
+                    return None
+
                 # Convert SVG to ReportLab drawing
                 drawing = svg2rlg(full_path)
                 # Render to PIL Image
