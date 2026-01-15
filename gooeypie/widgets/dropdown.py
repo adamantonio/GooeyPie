@@ -155,7 +155,15 @@ class Dropdown(GooeyPieWidget):
             raise ValueError(f"Value '{value}' is not in the current values list: {current_values}")
 
         if self._ctk_object:
+            # If disabled, temporarily enable to set value
+            is_disabled = self.disabled
+            if is_disabled:
+                self._ctk_object.configure(state='readonly')
+            
             self._ctk_object.set(value)
+            
+            if is_disabled:
+                self._ctk_object.configure(state='disabled')
         else:
             self._initial_selected = value
 
