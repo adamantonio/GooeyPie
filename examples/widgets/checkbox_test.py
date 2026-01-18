@@ -2,14 +2,29 @@ import gooeypie as gp
 import random
 
 def term_changed(event):
+    print(accept_terms.text)
     if accept_terms.checked:
         print("Terms accepted")
     else:
         print("Terms not accepted")
 
+
 def random_checkboxes(event):
     for chk in checkboxes:
         chk.checked = random.choice([True, False])
+
+def toggle_state(event):
+    disabled_chk.disabled = not disabled_chk.disabled
+
+def get_set(event):
+    if event.widget.text == "Get state":
+        if disabled_chk.checked:
+            status_lbl.text = "Checked"
+        else:
+            status_lbl.text = "Not checked"
+    else:
+        disabled_chk.checked = not disabled_chk.checked
+
 
 app = gp.GooeyPieApp("Checkbox Example")
 app.set_column_weight(1, 1)
@@ -27,17 +42,19 @@ for x in range(5):
 random_btn = gp.Button("Random checkbox", random_checkboxes)
 check_frame.add(random_btn, 0, 5, column_span=5)
 
-styled_chk = gp.Checkbox("Styled checkbox")
-styled_chk.style.bg_color = "salmon"
-styled_chk.style.hover_bg_color = "darksalmon"
-styled_chk.style.text_color = "white"
-styled_chk.style.corner_radius = 20
-styled_chk.style.border_width = 2
-styled_chk.style.border_color = "forestgreen"
-styled_chk.style.text_color = "forestgreen"
 
-disabled_chk = gp.Checkbox("Disabled checkbox")
-disabled_chk.disabled = True
+disabled_btn = gp.Button("Disable/Enable", toggle_state)
+disabled_chk = gp.Checkbox("Disable-able checkbox")
+get_check_value = gp.Button("Get state", get_set)
+set_check_value = gp.Button("Set state", get_set)
+status_lbl = gp.Label("Status")
+
+disabled_frame = gp.Frame()
+disabled_frame.add(disabled_btn, 1, 1)
+disabled_frame.add(disabled_chk, 2, 1)
+disabled_frame.add(get_check_value, 3, 1)
+disabled_frame.add(set_check_value, 4, 1)
+disabled_frame.add(status_lbl, 5, 1)
 
 large_chk = gp.Checkbox("Novelty checkbox")
 large_chk.checkbox_width = 100
@@ -56,8 +73,7 @@ for count in range(3):
     todo_frame.add(todo_task, 2, count, expand_horizontal=True)
 
 app.add(todo_frame, 1, 3, expand_horizontal=True)
-app.add(styled_chk, 1, 4)
-app.add(disabled_chk, 1, 5)
+app.add(disabled_frame, 1, 5)
 app.add(large_chk, 1, 6)
 
 app.run()
