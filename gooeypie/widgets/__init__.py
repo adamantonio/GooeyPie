@@ -6,3 +6,4 @@ from .checkbox import Checkbox
 from .dropdown import Dropdown
 from .radiogroup import Radiogroup
 from .image import Image
+from .switch import Switch

@@ -288,3 +288,13 @@ class GooeyPieStyle:
     @dropdown_font_size.setter
     def dropdown_font_size(self, v):
         self._update_dropdown_font(size=v)
+
+    @property
+    def on_bg_color(self): return self._get('progress_color')
+    @on_bg_color.setter
+    def on_bg_color(self, v): self._set('progress_color', v)
+
+    @property
+    def off_bg_color(self): return self._get('fg_color')
+    @off_bg_color.setter
+    def off_bg_color(self, v): self._set('fg_color', v)
