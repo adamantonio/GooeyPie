@@ -298,3 +298,13 @@ class GooeyPieStyle:
     def off_bg_color(self): return self._get('fg_color')
     @off_bg_color.setter
     def off_bg_color(self, v): self._set('fg_color', v)
+
+    @property
+    def active_bg_color(self): return self._get('fg_color')
+    @active_bg_color.setter
+    def active_bg_color(self, v): self._set('fg_color', v)
+
+    @property
+    def inactive_bg_color(self): return self._get('progress_color')
+    @inactive_bg_color.setter
+    def inactive_bg_color(self, v): self._set('progress_color', v)
