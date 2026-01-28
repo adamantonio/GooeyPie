@@ -8,3 +8,4 @@ from .radiogroup import Radiogroup
 from .image import Image
 from .switch import Switch
 from .slider import Slider
+from .buttongroup import ButtonGroup

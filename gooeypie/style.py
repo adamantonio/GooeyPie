@@ -308,3 +308,23 @@ class GooeyPieStyle:
     def inactive_bg_color(self): return self._get('progress_color')
     @inactive_bg_color.setter
     def inactive_bg_color(self, v): self._set('progress_color', v)
+
+    @property
+    def selected_color(self): return self._get('selected_color')
+    @selected_color.setter
+    def selected_color(self, v): self._set('selected_color', v)
+
+    @property
+    def unselected_color(self): return self._get('unselected_color')
+    @unselected_color.setter
+    def unselected_color(self, v): self._set('unselected_color', v)
+
+    @property
+    def selected_hover_color(self): return self._get('selected_hover_color')
+    @selected_hover_color.setter
+    def selected_hover_color(self, v): self._set('selected_hover_color', v)
+
+    @property
+    def unselected_hover_color(self): return self._get('unselected_hover_color')
+    @unselected_hover_color.setter
+    def unselected_hover_color(self, v): self._set('unselected_hover_color', v)
