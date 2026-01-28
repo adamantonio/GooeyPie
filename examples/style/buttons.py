@@ -63,20 +63,20 @@ app.add(l_h, 1, 6, align_horizontal='left')
 app.add(b_h, 2, 6, align_horizontal='center')
 
 # Row 7: Background Color
-l3 = gp.Label("my_button.style.bg_color = 'crimson'")
+l3 = gp.Label("my_button.style.button_color = 'crimson'")
 l3.style.font_name = "Consolas", "monospace"
 l3.style.justify = "left"
 b3 = gp.Button("Crimson", dummy_event)
-b3.style.bg_color = 'crimson'
+b3.style.button_color = 'crimson'
 app.add(l3, 1, 7, align_horizontal='left')
 app.add(b3, 2, 7, align_horizontal='center')
 
 # Row 8: Hover Color
-l4 = gp.Label("my_button.style.hover_bg_color = 'green'")
+l4 = gp.Label("my_button.style.button_hover_color = 'green'")
 l4.style.font_name = "Consolas", "monospace"
 l4.style.justify = "left"
 b4 = gp.Button("Hover Me", dummy_event)
-b4.style.hover_bg_color = 'green'
+b4.style.button_hover_color = 'green'
 app.add(l4, 1, 8, align_horizontal='left')
 app.add(b4, 2, 8, align_horizontal='center')
 

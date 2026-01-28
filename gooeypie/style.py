@@ -184,14 +184,28 @@ class GooeyPieStyle:
     def padding(self, v): self._set('border_spacing', v)
 
     @property
-    def bg_color(self): return self._get('fg_color')
+    def bg_color(self): 
+        if self._widget.__class__.__name__ == 'Button':
+            raise AttributeError("'Button' object has no attribute 'bg_color'. Use 'button_color' instead.")
+        return self._get('fg_color')
+    
     @bg_color.setter
-    def bg_color(self, v): self._set('fg_color', v)
+    def bg_color(self, v): 
+        if self._widget.__class__.__name__ == 'Button':
+            raise AttributeError("'Button' object has no attribute 'bg_color'. Use 'button_color' instead.")
+        self._set('fg_color', v)
 
     @property
-    def hover_bg_color(self): return self._get('hover_color')
+    def hover_bg_color(self): 
+        if self._widget.__class__.__name__ == 'Button':
+            raise AttributeError("'Button' object has no attribute 'hover_bg_color'. Use 'hover_button_color' instead.")
+        return self._get('hover_color')
+    
     @hover_bg_color.setter
-    def hover_bg_color(self, v): self._set('hover_color', v)
+    def hover_bg_color(self, v): 
+        if self._widget.__class__.__name__ == 'Button':
+            raise AttributeError("'Button' object has no attribute 'hover_bg_color'. Use 'hover_button_color' instead.")
+        self._set('hover_color', v)
 
     @property
     def border_color(self): return self._get('border_color')
@@ -219,14 +233,30 @@ class GooeyPieStyle:
     def justify(self, v): self._set('justify', v)
 
     @property
-    def button_color(self): return self._get('button_color')
+    def button_color(self): 
+        if self._widget.__class__.__name__ == 'Button':
+            return self._get('fg_color')
+        return self._get('button_color')
+    
     @button_color.setter
-    def button_color(self, v): self._set('button_color', v)
+    def button_color(self, v): 
+        if self._widget.__class__.__name__ == 'Button':
+            self._set('fg_color', v)
+        else:
+            self._set('button_color', v)
 
     @property
-    def button_hover_color(self): return self._get('button_hover_color')
+    def button_hover_color(self): 
+        if self._widget.__class__.__name__ == 'Button':
+            return self._get('hover_color')
+        return self._get('button_hover_color')
+    
     @button_hover_color.setter
-    def button_hover_color(self, v): self._set('button_hover_color', v)
+    def button_hover_color(self, v): 
+        if self._widget.__class__.__name__ == 'Button':
+            self._set('hover_color', v)
+        else:
+            self._set('button_hover_color', v)
 
     @property
     def dropdown_bg_color(self): return self._get('dropdown_fg_color')
