@@ -340,21 +340,53 @@ class GooeyPieStyle:
     def inactive_bg_color(self, v): self._set('progress_color', v)
 
     @property
-    def selected_color(self): return self._get('selected_color')
+    def selected_color(self): 
+        if self._widget.__class__.__name__ == 'Listbox':
+            return self._get('highlight_color')
+        return self._get('selected_color')
+    
     @selected_color.setter
-    def selected_color(self, v): self._set('selected_color', v)
+    def selected_color(self, v): 
+        if self._widget.__class__.__name__ == 'Listbox':
+            self._set('highlight_color', v)
+        else:
+            self._set('selected_color', v)
 
     @property
-    def unselected_color(self): return self._get('unselected_color')
+    def unselected_color(self): 
+        if self._widget.__class__.__name__ == 'Listbox':
+            return self._get('button_color')
+        return self._get('unselected_color')
+    
     @unselected_color.setter
-    def unselected_color(self, v): self._set('unselected_color', v)
+    def unselected_color(self, v): 
+        if self._widget.__class__.__name__ == 'Listbox':
+            self._set('button_color', v)
+        else:
+            self._set('unselected_color', v)
 
     @property
-    def selected_hover_color(self): return self._get('selected_hover_color')
+    def selected_hover_color(self): 
+        if self._widget.__class__.__name__ == 'Listbox':
+            return self._get('hover_color')
+        return self._get('selected_hover_color')
+
     @selected_hover_color.setter
-    def selected_hover_color(self, v): self._set('selected_hover_color', v)
+    def selected_hover_color(self, v): 
+        if self._widget.__class__.__name__ == 'Listbox':
+            self._set('hover_color', v)
+        else:
+            self._set('selected_hover_color', v)
 
     @property
-    def unselected_hover_color(self): return self._get('unselected_hover_color')
+    def unselected_hover_color(self): 
+        if self._widget.__class__.__name__ == 'Listbox':
+            return self._get('hover_color')
+        return self._get('unselected_hover_color')
+
     @unselected_hover_color.setter
-    def unselected_hover_color(self, v): self._set('unselected_hover_color', v)
+    def unselected_hover_color(self, v): 
+        if self._widget.__class__.__name__ == 'Listbox':
+            self._set('hover_color', v)
+        else:
+            self._set('unselected_hover_color', v)
