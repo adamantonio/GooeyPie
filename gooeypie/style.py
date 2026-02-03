@@ -384,9 +384,13 @@ class GooeyPieStyle:
             return self._get('hover_color')
         return self._get('unselected_hover_color')
 
-    @unselected_hover_color.setter
-    def unselected_hover_color(self, v): 
         if self._widget.__class__.__name__ == 'Listbox':
             self._set('hover_color', v)
         else:
             self._set('unselected_hover_color', v)
+
+    @property
+    def progress_color(self): return self._get('progress_color')
+    @progress_color.setter
+    def progress_color(self, v): self._set('progress_color', v)
+

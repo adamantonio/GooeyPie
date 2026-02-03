@@ -10,3 +10,5 @@ from .switch import Switch
 from .slider import Slider
 from .buttongroup import ButtonGroup
 from .listbox import Listbox
+from .progressbar import Progressbar
+
