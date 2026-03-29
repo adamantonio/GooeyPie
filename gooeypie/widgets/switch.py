@@ -2,10 +2,31 @@ import customtkinter as ctk
 from .widget import GooeyPieWidget
 
 class Switch(GooeyPieWidget):
+    _style_properties = (
+        'border_color',
+        'border_width',
+        'button_color',
+        'button_disabled_color',
+        'button_hover_color',
+        'corner_radius',
+        'font_name',
+        'font_size',
+        'font_style',
+        'font_weight',
+        'off_bg_color',
+        'on_bg_color',
+        'text_color',
+        'text_disabled_color',
+    )
+
+    _DEFAULT_BUTTON_DISABLED_COLOR = '#555555'
+
     """A switch widget that can be toggled on and off."""
     
     def __init__(self, text="", value=False, command=None, **kwargs):
         super().__init__(text=text, **kwargs)
+        self._button_disabled_color = None
+        self._saved_button_color = None
         
         # Set the command to dispatch our 'change' event
         # If a command was passed, we wrap it?
@@ -35,9 +56,35 @@ class Switch(GooeyPieWidget):
             self._constructor_kwargs['width'] = 36
 
     def _create_widget(self, master):
+        # Temporarily remove disabled state so select() works during creation
+        saved_state = self._constructor_kwargs.pop('state', None)
         self._ctk_object = ctk.CTkSwitch(master, **self._constructor_kwargs)
         if self._initial_value:
             self._ctk_object.select()
+        if saved_state:
+            self._constructor_kwargs['state'] = saved_state
+            self._ctk_object.configure(state=saved_state)
+
+    @property
+    def disabled(self):
+        return super().disabled
+
+    @disabled.setter
+    def disabled(self, value):
+        state = 'disabled' if value else 'normal'
+        if self._ctk_object:
+            self._ctk_object.configure(state=state)
+        self._constructor_kwargs['state'] = state
+
+        # Swap button color for the disabled variant
+        if value:
+            self._saved_button_color = self._get_property('button_color')
+            disabled_color = self._button_disabled_color or self._DEFAULT_BUTTON_DISABLED_COLOR
+            self._set_property('button_color', disabled_color)
+        else:
+            if self._saved_button_color is not None:
+                self._set_property('button_color', self._saved_button_color)
+                self._saved_button_color = None
 
     @property
     def value(self):

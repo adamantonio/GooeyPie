@@ -2,6 +2,14 @@ import customtkinter as ctk
 from .widget import GooeyPieWidget
 
 class Progressbar(GooeyPieWidget):
+    _style_properties = (
+        'track_color', 
+        'border_color', 
+        'border_width', 
+        'corner_radius', 
+        'progress_color'
+    )
+
     """A progressbar widget to show the loading status for long running operations."""
     
     def __init__(self, container, mode="determinate", **kwargs):

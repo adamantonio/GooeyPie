@@ -11,6 +11,9 @@ btn_bl = gp.Button("Bottom Left", None)
 btn_br = gp.Button("Bottom Right", None)
 btn_c = gp.Button("Center", None)
 
+# Test for failed style
+btn_c.style.not_a_style_property = 'purple'
+
 # --- Layout ---
 # Make cells big so we can see alignment
 app.set_column_weight(1, 1)

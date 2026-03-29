@@ -2,6 +2,23 @@ import customtkinter as ctk
 from .widget import GooeyPieWidget
 
 class Dropdown(GooeyPieWidget):
+    _style_properties = (
+        'bg_color', 
+        'border_color', 
+        'border_width', 
+        'button_color', 
+        'button_hover_color', 
+        'corner_radius', 
+        'disabled_text_color', 
+        'dropdown_hover_color', 
+        'font_name', 
+        'font_size', 
+        'font_style', 
+        'font_weight', 
+        'text_color', 
+    )
+
+
     def __init__(self, values=None, selected_value=None, **kwargs):
         """
         :param values: A list or tuple of string values to populate the dropdown.
@@ -71,6 +88,13 @@ class Dropdown(GooeyPieWidget):
             self._hover_color = value
         else:
             super()._set_property(key, value)
+            # Sync font and text_color to the dropdown menu
+            if key == 'font':
+                super()._set_property('dropdown_font', value)
+            elif key == 'text_color':
+                super()._set_property('dropdown_text_color', value)
+            elif key == 'fg_color':
+                super()._set_property('dropdown_fg_color', value)
 
     def _apply_pending_properties(self):
         # Handle hover_color manually to prevent it reaching configure()

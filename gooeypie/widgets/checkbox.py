@@ -3,8 +3,27 @@ from .widget import GooeyPieWidget
 from ..events import GooeyPieEvent
 
 class Checkbox(GooeyPieWidget):
+    _style_properties = (
+        'border_color',
+        'border_width',
+        'checkbox_color',
+        'checkbox_disabled_color',
+        'checkbox_hover_color',
+        'corner_radius',
+        'font_name',
+        'font_size',
+        'font_style',
+        'font_weight',
+        'text_color',
+        'text_disabled_color',
+    )
+
+    _DEFAULT_CHECKBOX_DISABLED_COLOR = '#808080'
+
     def __init__(self, text="", checked=False, **kwargs):
         super().__init__(text=text, **kwargs)
+        self._checkbox_disabled_color = None
+        self._saved_checkbox_color = None
         
         # Set the command to dispatch our 'change' event
         # This lambda needs to be pickle-safe? No, standard GUI. 
@@ -30,6 +49,27 @@ class Checkbox(GooeyPieWidget):
         self._ctk_object = ctk.CTkCheckBox(master, **self._constructor_kwargs)
         if self._initial_checked:
             self._ctk_object.select()
+
+    @property
+    def disabled(self):
+        return super().disabled
+
+    @disabled.setter
+    def disabled(self, value):
+        state = 'disabled' if value else 'normal'
+        if self._ctk_object:
+            self._ctk_object.configure(state=state)
+        self._constructor_kwargs['state'] = state
+
+        # Swap checkbox color for the disabled variant
+        if value:
+            self._saved_checkbox_color = self._get_property('fg_color')
+            disabled_color = self._checkbox_disabled_color or self._DEFAULT_CHECKBOX_DISABLED_COLOR
+            self._set_property('fg_color', disabled_color)
+        else:
+            if self._saved_checkbox_color is not None:
+                self._set_property('fg_color', self._saved_checkbox_color)
+                self._saved_checkbox_color = None
 
     @property
     def checked(self):

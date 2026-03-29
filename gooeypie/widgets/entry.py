@@ -3,6 +3,21 @@ import tkinter
 from .widget import GooeyPieWidget
 
 class Entry(GooeyPieWidget):
+    _style_properties = (
+        'bg_color', 
+        'border_color', 
+        'border_width', 
+        'corner_radius', 
+        'disabled_text_color', 
+        'font_name', 
+        'font_size', 
+        'font_style', 
+        'font_weight', 
+        'justify', 
+        'placeholder_text_color', 
+        'text_color'
+    )
+
     def __init__(self, placeholder_text="", **kwargs):
         # Extract disabled text color if present, as it's not a valid CTk argument
         self._disabled_text_color = kwargs.pop('text_color_disabled', None)

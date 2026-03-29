@@ -9,6 +9,36 @@ class GooeyPieStyle:
     def __init__(self, widget):
         self._widget = widget
 
+    def __init__(self, widget):
+        self._widget = widget
+
+    def __getattr__(self, name):
+        """Called when an attribute lookup has not found the attribute in the usual places."""
+        valid_styles = getattr(self._widget, '_style_properties', [])
+        raise AttributeError(f"'{type(self._widget).__name__}' widget style has no attribute '{name}'. Available styles: {', '.join(sorted(valid_styles))}")
+
+    def __setattr__(self, name, value):
+        """Called when an attribute assignment is attempted."""
+        # Allow internal attributes (starting with _) to be set normally
+        if name.startswith('_'):
+            super().__setattr__(name, value)
+            return
+
+        # Check if the attribute is a property on the class and in the allow-list
+        if hasattr(type(self), name) and isinstance(getattr(type(self), name), property):
+            # Check against widget's allowed styles
+            valid_styles = getattr(self._widget, '_style_properties', None)
+            if valid_styles is not None and name not in valid_styles:
+                 # It is a valid GooeyPie property, but NOT for this widget
+                 raise AttributeError(f"'{type(self._widget).__name__}' widget style has no attribute '{name}'. Available styles: {', '.join(sorted(valid_styles))}")
+
+            # It's valid, let standard mechanism handle the setter invocation
+            super().__setattr__(name, value)
+        else:
+            # It's not a known property at all
+            valid_styles = getattr(self._widget, '_style_properties', [])
+            raise AttributeError(f"'{type(self._widget).__name__}' widget style has no attribute '{name}'. Available styles: {', '.join(sorted(valid_styles))}")
+
     @classmethod
     def _get_available_fonts(cls):
         if cls._available_fonts is None:
@@ -185,25 +215,25 @@ class GooeyPieStyle:
 
     @property
     def bg_color(self): 
-        if self._widget.__class__.__name__ == 'Button':
+        if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
             raise AttributeError("'Button' object has no attribute 'bg_color'. Use 'button_color' instead.")
         return self._get('fg_color')
     
     @bg_color.setter
     def bg_color(self, v): 
-        if self._widget.__class__.__name__ == 'Button':
+        if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
             raise AttributeError("'Button' object has no attribute 'bg_color'. Use 'button_color' instead.")
         self._set('fg_color', v)
 
     @property
     def hover_bg_color(self): 
-        if self._widget.__class__.__name__ == 'Button':
+        if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
             raise AttributeError("'Button' object has no attribute 'hover_bg_color'. Use 'hover_button_color' instead.")
         return self._get('hover_color')
     
     @hover_bg_color.setter
     def hover_bg_color(self, v): 
-        if self._widget.__class__.__name__ == 'Button':
+        if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
             raise AttributeError("'Button' object has no attribute 'hover_bg_color'. Use 'hover_button_color' instead.")
         self._set('hover_color', v)
 
@@ -223,6 +253,11 @@ class GooeyPieStyle:
     def disabled_text_color(self, v): self._set('text_color_disabled', v)
 
     @property
+    def text_disabled_color(self): return self._get('text_color_disabled')
+    @text_disabled_color.setter
+    def text_disabled_color(self, v): self._set('text_color_disabled', v)
+
+    @property
     def placeholder_text_color(self): return self._get('placeholder_text_color')
     @placeholder_text_color.setter
     def placeholder_text_color(self, v): self._set('placeholder_text_color', v)
@@ -234,26 +269,67 @@ class GooeyPieStyle:
 
     @property
     def button_color(self): 
-        if self._widget.__class__.__name__ == 'Button':
+        if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
             return self._get('fg_color')
         return self._get('button_color')
     
     @button_color.setter
     def button_color(self, v): 
-        if self._widget.__class__.__name__ == 'Button':
+        if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
             self._set('fg_color', v)
         else:
             self._set('button_color', v)
 
     @property
+    def button_disabled_color(self):
+        return self._widget._button_disabled_color
+
+    @button_disabled_color.setter
+    def button_disabled_color(self, v):
+        self._widget._button_disabled_color = v
+        # If currently disabled, apply immediately
+        if self._widget.disabled:
+            if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
+                self._set('fg_color', v)
+            else:
+                self._set('button_color', v)
+
+    @property
+    def checkbox_color(self):
+        return self._get('fg_color')
+
+    @checkbox_color.setter
+    def checkbox_color(self, v):
+        self._set('fg_color', v)
+
+    @property
+    def checkbox_disabled_color(self):
+        return self._widget._checkbox_disabled_color
+
+    @checkbox_disabled_color.setter
+    def checkbox_disabled_color(self, v):
+        self._widget._checkbox_disabled_color = v
+        # If currently disabled, apply immediately
+        if self._widget.disabled:
+            self._set('fg_color', v)
+
+    @property
+    def checkbox_hover_color(self):
+        return self._get('hover_color')
+
+    @checkbox_hover_color.setter
+    def checkbox_hover_color(self, v):
+        self._set('hover_color', v)
+
+    @property
     def button_hover_color(self): 
-        if self._widget.__class__.__name__ == 'Button':
+        if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
             return self._get('hover_color')
         return self._get('button_hover_color')
     
     @button_hover_color.setter
     def button_hover_color(self, v): 
-        if self._widget.__class__.__name__ == 'Button':
+        if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
             self._set('hover_color', v)
         else:
             self._set('button_hover_color', v)
@@ -353,6 +429,28 @@ class GooeyPieStyle:
             self._set('selected_color', v)
 
     @property
+    def selected_disabled_color(self):
+        return self._widget._selected_disabled_color
+
+    @selected_disabled_color.setter
+    def selected_disabled_color(self, v):
+        self._widget._selected_disabled_color = v
+        # If currently disabled, apply immediately
+        if self._widget.disabled:
+            self._set('selected_color', v)
+
+    @property
+    def unselected_disabled_color(self):
+        return self._widget._unselected_disabled_color
+
+    @unselected_disabled_color.setter
+    def unselected_disabled_color(self, v):
+        self._widget._unselected_disabled_color = v
+        # If currently disabled, apply immediately
+        if self._widget.disabled:
+            self._set('unselected_color', v)
+
+    @property
     def unselected_color(self): 
         if self._widget.__class__.__name__ == 'Listbox':
             return self._get('button_color')
@@ -384,6 +482,8 @@ class GooeyPieStyle:
             return self._get('hover_color')
         return self._get('unselected_hover_color')
 
+    @unselected_hover_color.setter
+    def unselected_hover_color(self, v):
         if self._widget.__class__.__name__ == 'Listbox':
             self._set('hover_color', v)
         else:
@@ -393,4 +493,9 @@ class GooeyPieStyle:
     def progress_color(self): return self._get('progress_color')
     @progress_color.setter
     def progress_color(self, v): self._set('progress_color', v)
+
+    @property
+    def track_color(self): return self._get('fg_color')
+    @track_color.setter
+    def track_color(self, v): self._set('fg_color', v)
 

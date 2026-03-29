@@ -6,6 +6,7 @@ from .button import Button
 
 
 class ImageButton(Button):
+
     def __init__(self, image_path, event_function, text="", **kwargs):
         self._image_path = image_path
         self._ctk_image = self._load_image(image_path)

@@ -5,6 +5,8 @@ import tkinter
 
 class GooeyPieWidget(GooeyPieObject):
     """Base class for widgets."""
+    _style_properties = ()
+
     
     # Default padding when added to a grid
     _default_grid_padding = WIDGET_PADDING

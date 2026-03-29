@@ -2,6 +2,18 @@ import customtkinter as ctk
 from .widget import GooeyPieWidget
 
 class Slider(GooeyPieWidget):
+    _style_properties = (
+        'active_bg_color',
+        'border_color',
+        'border_width',
+        'button_color',
+        'button_disabled_color',
+        'button_hover_color',
+        'inactive_bg_color',
+    )
+
+    _DEFAULT_BUTTON_DISABLED_COLOR = '#555555'
+
     """A slider widget for selecting a value from a range."""
 
     def __init__(self, min_value, max_value, command=None, **kwargs):
@@ -20,6 +32,8 @@ class Slider(GooeyPieWidget):
         
         # Initialize base
         super().__init__(**kwargs)
+        self._button_disabled_color = None
+        self._saved_button_color = None
         
         self._constructor_kwargs['command'] = lambda v: self._handle_event('change')
         self._current_value = min_value
@@ -80,6 +94,27 @@ class Slider(GooeyPieWidget):
                 self._ctk_object.configure(state='disabled')
         
         self._current_value = v
+
+    @property
+    def disabled(self):
+        return super().disabled
+
+    @disabled.setter
+    def disabled(self, value):
+        state = 'disabled' if value else 'normal'
+        if self._ctk_object:
+            self._ctk_object.configure(state=state)
+        self._constructor_kwargs['state'] = state
+
+        # Swap button color for the disabled variant
+        if value:
+            self._saved_button_color = self._get_property('button_color')
+            disabled_color = self._button_disabled_color or self._DEFAULT_BUTTON_DISABLED_COLOR
+            self._set_property('button_color', disabled_color)
+        else:
+            if self._saved_button_color is not None:
+                self._set_property('button_color', self._saved_button_color)
+                self._saved_button_color = None
 
     @property
     def increment(self):

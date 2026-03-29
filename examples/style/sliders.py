@@ -15,44 +15,58 @@ app.add(code_header, 1, 1)
 app.add(result_header, 2, 1)
 
 # Helper for code labels
-def add_row(app, row, code_text, widget, align_code="left", align_widget="center"):
+_next_row = 2
+def add_row(app, code_text, widget, align_code="left", align_widget="center"):
+    global _next_row
     l = gp.Label(code_text)
     l.style.font_name = "Consolas", "monospace"
     l.style.justify = "left"
-    app.add(l, 1, row, align_horizontal=align_code)
-    app.add(widget, 2, row, align_horizontal=align_widget)
+    app.add(l, 1, _next_row, align_horizontal=align_code)
+    app.add(widget, 2, _next_row, align_horizontal=align_widget)
+    _next_row += 1
 
 # Default
 s_default = gp.Slider(0, 10)
-add_row(app, 2, 'gp.Slider(0, 10)', s_default)
+add_row(app, 'gp.Slider(0, 10)', s_default)
+
+# Disabled
+s_disabled = gp.Slider(0, 10)
+s_disabled.disabled = True
+add_row(app, 'my_slider.disabled = True', s_disabled)
+
+# Disabled with custom button color
+s_disabled_color = gp.Slider(0, 10)
+s_disabled_color.style.button_disabled_color = "tomato"
+s_disabled_color.disabled = True
+add_row(app, 'style.button_disabled_color = "tomato"\nmy_slider.disabled = True', s_disabled_color)
 
 # Width
 s_width = gp.Slider(0, 10)
 s_width.width = 100
-add_row(app, 3, 'my_slider.width = 100', s_width)
+add_row(app, 'my_slider.width = 100', s_width)
 
 # Height
 s_height = gp.Slider(0, 10)
 s_height.height = 50
-add_row(app, 4, 'my_slider.height = 50', s_height)
+add_row(app, 'my_slider.height = 50', s_height)
 
 # Background Colors
 s_input = gp.Slider(0, 10)
 s_input.style.active_bg_color = "darkgreen"
 s_input.style.inactive_bg_color = "limegreen"
-add_row(app, 5, 'style.active_bg_color = "darkgreen"\nstyle.inactive_bg_color = "limegreen"', s_input)
+add_row(app, 'style.active_bg_color = "darkgreen"\nstyle.inactive_bg_color = "limegreen"', s_input)
 
 # Button Colors
 s_btn = gp.Slider(0, 10)
 s_btn.style.button_color = "orangered"
 s_btn.style.button_hover_color = "gold"
-add_row(app, 6, 'style.button_color = "orangered"\nstyle.button_hover_color = "gold"', s_btn)
+add_row(app, 'style.button_color = "orangered"\nstyle.button_hover_color = "gold"', s_btn)
 
 # Border Color
 s_bc = gp.Slider(0, 10)
 s_bc.style.border_color = "darkorange"
 s_bc.style.border_width = 2
-add_row(app, 7, 'style.border_color = "darkorange"\nstyle.border_width = 2', s_bc)
+add_row(app, 'style.border_color = "darkorange"\nstyle.border_width = 2', s_bc)
 
 # Configure columns
 app.set_column_weight(1, 1)
