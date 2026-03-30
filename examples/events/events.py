@@ -12,8 +12,8 @@ def log_event(event):
     
     detail_lbl.text = details
 
-    if event.widget == btn and event.name == 'press':
-        btn.remove_event_listener('mouse_over')
+    if event.widget == btn and event.name == 'activate':
+        btn.on_mouse_enter(None)
 
 
 app = gp.GooeyPieApp("Event Test")
@@ -32,27 +32,25 @@ dd = gp.Dropdown([f"Option {n}" for n in range(1,4)])
 entry = gp.Entry()
 entry.width = 200
 
-events = [
-    'mouse_down',
-    'mouse_up',
-    'double_click',
-    'triple_click',
-    'middle_click',
-    'right_click',
-    'mouse_over',
-    'mouse_out',
-    'focus',
-    'blur',
-    'key_press',
-    'change',
-    'select',
-]
+def add_all_events(w):
+    w.on_mouse_down(log_event)
+    w.on_mouse_up(log_event)
+    w.on_click(log_event)
+    w.on_double_click(log_event)
+    w.on_right_click(log_event)
+    w.on_middle_click(log_event)
+    w.on_mouse_enter(log_event)
+    w.on_mouse_leave(log_event)
+    w.on_focus_gained(log_event)
+    w.on_focus_lost(log_event)
+    w.on_key_press(log_event)
+    if hasattr(w, 'on_change'):
+        w.on_change(log_event)
 
-for event in events:
-    lbl.add_event_listener(event, log_event)
-    btn.add_event_listener(event, log_event)
-    chk.add_event_listener(event, log_event)
-    entry.add_event_listener(event, log_event)
+add_all_events(lbl)
+add_all_events(btn)
+add_all_events(chk)
+add_all_events(entry)
 
 log_frame = gp.ScrollableFrame()
 log_lbl = gp.Label()

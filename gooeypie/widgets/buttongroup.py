@@ -120,3 +120,7 @@ class ButtonGroup(GooeyPieWidget):
             if value is not None and value not in self._options:
                  raise ValueError(f"Value '{value}' not in options {self._options}")
             self._initial_selected = value
+
+    def on_change(self, event_function):
+        """Sets the event to be called when the selected button changes."""
+        self._set_event('change', event_function)

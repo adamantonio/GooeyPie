@@ -39,7 +39,7 @@ set_text_btn = gp.Button("Set Text", textbox_test)
 # Disable
 disable_chk = gp.Checkbox("Disable", textbox_test)
 disable_chk.checked = False
-disable_chk.add_event_listener('change', change_state)
+disable_chk.on_change(change_state)
 
 # Clear text
 clear_btn = gp.Button("Clear Text", textbox_test)

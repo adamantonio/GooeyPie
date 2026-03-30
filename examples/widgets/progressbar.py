@@ -34,7 +34,7 @@ app.add(lbl_val, 1, 3)
 
 slider = gp.Slider(0, 100)
 slider.value = 50
-slider.add_event_listener('change', update_progress)
+slider.on_change(update_progress)
 app.add(slider, 1, 4)
 
 # Indeterminate

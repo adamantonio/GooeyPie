@@ -21,7 +21,7 @@ def main():
     bg = gp.ButtonGroup(options)
 
     bg.selected = "Option 2"
-    bg.add_event_listener('change', on_change)
+    bg.on_change(on_change)
     container.add(bg, 2, 1)
 
     # Validation controls

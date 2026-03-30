@@ -155,3 +155,7 @@ class Checkbox(GooeyPieWidget):
     def toggle(self):
         if self._ctk_object:
             self._ctk_object.toggle()
+
+    def on_change(self, event_function):
+        """Sets the event to be called when the checkbox state changes."""
+        self._set_event('change', event_function)

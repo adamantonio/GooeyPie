@@ -97,25 +97,23 @@ state_frame.add(state_status, 6, 1)
 
 
 # Standard events
-events = [
-    'mouse_down',
-    'mouse_up',
-    'double_click',
-    'triple_click',
-    'middle_click',
-    'right_click',
-    'mouse_over',
-    'mouse_out',
-    'focus',
-    'blur',
-    'key_press',
-]
 std_events_lbl = gp.Label("Standard Events")
 std_events_entry = gp.Entry()
 std_events_status = gp.Label("Status")
 
-for event in events:
-    std_events_entry.add_event_listener(event, standard_event)
+def add_all_events(w):
+    w.on_mouse_down(standard_event)
+    w.on_mouse_up(standard_event)
+    w.on_double_click(standard_event)
+    w.on_middle_click(standard_event)
+    w.on_right_click(standard_event)
+    w.on_mouse_enter(standard_event)
+    w.on_mouse_leave(standard_event)
+    w.on_focus_gained(standard_event)
+    w.on_focus_lost(standard_event)
+    w.on_key_press(standard_event)
+
+add_all_events(std_events_entry)
 
 
 std_events_frame = gp.Frame()
@@ -126,7 +124,7 @@ std_events_frame.add(std_events_status, 3, 1)
 # Change event
 change_event_lbl = gp.Label("Change event")
 change_event_entry = gp.Entry("Change Event")
-change_event_entry.add_event_listener("change", change_event)
+change_event_entry.on_change(change_event)
 change_event_status = gp.Label("Status")
 
 change_event_frame = gp.Frame()

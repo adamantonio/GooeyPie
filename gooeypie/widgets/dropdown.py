@@ -229,3 +229,7 @@ class Dropdown(GooeyPieWidget):
             self._ctk_object.configure(state=state)
         self._constructor_kwargs['state'] = state
 
+    def on_change(self, event_function):
+        """Sets the event to be called when the selected dropdown item changes."""
+        self._set_event('change', event_function)
+

@@ -37,7 +37,7 @@ selection_lbl = gp.Label("Selection Test")
 selection_dd = gp.Dropdown(["Item 1", "Item 2", "Item 3"])
 selection_chk = gp.Checkbox("Enabled")
 selection_chk.checked = True
-selection_chk.add_event_listener("change", update_state)
+selection_chk.on_change(update_state)
 selection_get_btn = gp.Button("Get Selection", selection)
 selection_set_btn = gp.Button("Set selection to Item 2", selection)
 selection_status = gp.Label("Status")
@@ -54,7 +54,7 @@ selection_frame.add(selection_status, 6, 1)
 # Test for change event and setting values dynamically
 dependency_lbl = gp.Label("Dependency Test")
 primary_dd = gp.Dropdown(["", "Colours", "Shapes", "Fruits"])
-primary_dd.add_event_listener("change", update_dropdown)
+primary_dd.on_change(update_dropdown)
 secondary_dd = gp.Dropdown()
 
 dependency_test_frame = gp.Frame()
@@ -64,25 +64,23 @@ dependency_test_frame.add(secondary_dd, 3, 1)
 
 
 # Standard events
-events = [
-    'mouse_down',
-    'mouse_up',
-    'double_click',
-    'triple_click',
-    'middle_click',
-    'right_click',
-    'mouse_over',
-    'mouse_out',
-    'focus',
-    'blur',
-    'key_press',
-]
 std_events_lbl = gp.Label("Standard Events")
 std_events_dd = gp.Dropdown(["Item 1", "Item 2", "Item 3"])
 std_events_status = gp.Label("Status")
 
-for event in events:
-    std_events_dd.add_event_listener(event, standard_event)
+def add_all_events(w):
+    w.on_mouse_down(standard_event)
+    w.on_mouse_up(standard_event)
+    w.on_double_click(standard_event)
+    w.on_middle_click(standard_event)
+    w.on_right_click(standard_event)
+    w.on_mouse_enter(standard_event)
+    w.on_mouse_leave(standard_event)
+    w.on_focus_gained(standard_event)
+    w.on_focus_lost(standard_event)
+    w.on_key_press(standard_event)
+
+add_all_events(std_events_dd)
 
 
 std_events_frame = gp.Frame()

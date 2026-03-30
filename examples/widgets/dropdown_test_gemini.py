@@ -56,7 +56,7 @@ def test_dropdown():
     def on_change(event):
         print(f"PASS: Change event fired! Widget: {event.widget}, Selected: {event.widget.selected}")
 
-    dd.add_event_listener('change', on_change)
+    dd.on_change(on_change)
     print("info: manually change selection in UI to verify 'change' event logs.")
 
     # Test 7: Update Values

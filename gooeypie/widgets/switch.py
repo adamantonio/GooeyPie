@@ -165,3 +165,7 @@ class Switch(GooeyPieWidget):
         if self._ctk_object:
             self._ctk_object.configure(switch_height=value)
         self._constructor_kwargs['switch_height'] = value
+
+    def on_change(self, event_function):
+        """Sets the event to be called when the switch state changes."""
+        self._set_event('change', event_function)

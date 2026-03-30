@@ -30,7 +30,7 @@ app = gp.GooeyPieApp("Checkbox Example")
 app.set_column_weight(1, 1)
 
 accept_terms = gp.Checkbox("Accept terms")
-accept_terms.add_event_listener("change", term_changed)
+accept_terms.on_change(term_changed)
 
 check_frame = gp.Frame()
 checkboxes = []

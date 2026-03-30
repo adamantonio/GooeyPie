@@ -39,7 +39,7 @@ switch_text_get_btn.width = 0
 
 switch_status_lbl = gp.Label("Status: ")
 
-switch.add_event_listener('change', switch_changed)
+switch.on_change(switch_changed)
 
 switch_frame = gp.Frame()
 switch_frame.add(switch_lbl, 1, 1)

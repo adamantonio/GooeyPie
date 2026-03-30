@@ -23,13 +23,23 @@ class Button(GooeyPieWidget):
     _DEFAULT_BUTTON_DISABLED_COLOR = '#808080'
 
     def __init__(self, text, event_function, **kwargs):
+        if not callable(event_function):
+            raise TypeError(
+                f"The event_function must be a function, but received {type(event_function).__name__}. "
+                "Ensure that you specify only the name of the function (e.g. my_function), "
+                "instead of passing the result of calling the function (e.g. my_function())."
+            )
+            
         super().__init__(text=text, **kwargs)
         self._button_disabled_color = None
         self._saved_button_color = None
-        if event_function:
-            self.add_event_listener('press', event_function)
+        self.on_activate(event_function)
         
-        self._constructor_kwargs['command'] = lambda: self._handle_event('press')
+        self._constructor_kwargs['command'] = lambda: self._handle_event('activate')
+
+    def on_activate(self, event_function):
+        """Sets the event to be called when the button is successfully clicked or activated."""
+        self._set_event('activate', event_function)
     
     def _create_widget(self, master):
         self._ctk_object = ctk.CTkButton(master, **self._constructor_kwargs)

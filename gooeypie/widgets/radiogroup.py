@@ -246,3 +246,7 @@ class RadioGroup(GooeyPieWidget):
             self.enable_item(option)
         else:
             raise IndexError(f"Index {index} out of range for Radiogroup options")
+
+    def on_change(self, event_function):
+        """Sets the event to be called when the selected radio button changes."""
+        self._set_event('change', event_function)

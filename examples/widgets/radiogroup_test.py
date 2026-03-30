@@ -14,7 +14,7 @@ rg_vertical = gp.RadioGroup(
     options=["Option 1", "Option 2", "Option 3"], 
     selected="Option 1"
 )
-rg_vertical.add_event_listener('change', on_change)
+rg_vertical.on_change(on_change)
 main_container.add(rg_vertical, 1, 1)
 
 # Horizontal Radiogroup
@@ -63,8 +63,7 @@ def new_handler(event):
     print(f"NEW HANDLER: Selection changed to: {event.widget.selected}")
 
 def change_command(event):
-    rg_vertical.remove_event_listener('change', on_change)
-    rg_vertical.add_event_listener('change', new_handler)
+    rg_vertical.on_change(new_handler)
     print("Changed command handler for Vertical Radiogroup")
 
 btn_cmd = gp.Button("Set New Command", change_command)

@@ -39,6 +39,25 @@ class Textbox(GooeyPieWidget):
             with self._writeable():
                 self._ctk_object.insert("1.0", self._initial_text)
 
+        self._last_text = self.text
+        self._ctk_object.bind("<<Modified>>", self._on_modified)
+
+    def _on_modified(self, event=None):
+        if not self._ctk_object:
+            return
+            
+        current_text = self.text
+        if hasattr(self, '_last_text') and current_text != self._last_text:
+            self._handle_event('change')
+            
+        self._last_text = current_text
+        
+        # Reset the modified flag so it can fire again
+        try:
+            self._ctk_object._textbox.edit_modified(False)
+        except AttributeError:
+            pass
+
     def _set_property(self, key, value):
         if key == 'text_disabled_color' or key == 'text_color_disabled':
             self._disabled_text_color = value
@@ -170,3 +189,7 @@ class Textbox(GooeyPieWidget):
         """Scrolls the Textbox so that the text at the end is in view."""
         if self._ctk_object:
             self._ctk_object.see("end")
+
+    def on_change(self, event_function):
+        """Sets the event to be called when the text content changes."""
+        self._set_event('change', event_function)

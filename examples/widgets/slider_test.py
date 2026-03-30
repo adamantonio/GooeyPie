@@ -46,7 +46,7 @@ app.width = 600
 
 slider = gp.Slider(0, 10)
 slider.increment = 1
-slider.add_event_listener('change', on_change)
+slider.on_change(on_change)
 
 # Controls
 btn_disable = gp.Button("Enable/Disable", toggle_disabled)

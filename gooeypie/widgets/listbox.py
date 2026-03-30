@@ -367,3 +367,7 @@ class Listbox(GooeyPieWidget):
         self._items = []
         self._refresh_items()
 
+    def on_change(self, event_function):
+        """Sets the event to be called when the selection changes."""
+        self._set_event('change', event_function)
+

@@ -155,3 +155,7 @@ class Entry(GooeyPieWidget):
         if self._ctk_object:
             self.focus()
             self._ctk_object.select_range(0, 'end')
+
+    def on_change(self, event_function):
+        """Sets the event to be called when the text content changes."""
+        self._set_event('change', event_function)

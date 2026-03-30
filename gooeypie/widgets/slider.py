@@ -35,8 +35,15 @@ class Slider(GooeyPieWidget):
         self._button_disabled_color = None
         self._saved_button_color = None
         
-        self._constructor_kwargs['command'] = lambda v: self._handle_event('change')
+        self._constructor_kwargs['command'] = self._on_change_internal
         self._current_value = min_value
+        self._last_reported_value = min_value
+
+    def _on_change_internal(self, v):
+        new_val = self.value
+        if new_val != self._last_reported_value:
+            self._last_reported_value = new_val
+            self._handle_event('change')
 
     def _create_widget(self, master):
         self._ctk_object = ctk.CTkSlider(master, **self._constructor_kwargs)
@@ -139,3 +146,7 @@ class Slider(GooeyPieWidget):
                 raise RuntimeError("Cannot change orientation after widget has been created/run")
             self._ctk_object.configure(orientation=v)
         self._constructor_kwargs['orientation'] = v
+
+    def on_change(self, event_function):
+        """Sets the event to be called when the slider's rounded value changes."""
+        self._set_event('change', event_function)
