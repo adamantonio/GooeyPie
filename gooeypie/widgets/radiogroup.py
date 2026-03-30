@@ -2,10 +2,96 @@ import customtkinter as ctk
 from .widget import GooeyPieWidget
 from ..events import GooeyPieEvent
 
-class Radiogroup(GooeyPieWidget):
-    _style_properties = ('active_bg_color', 'bg_color', 'border_color', 'border_width', 'button_color', 'button_hover_color', 'corner_radius', 'disabled_text_color', 'dropdown_bg_color', 'dropdown_font_name', 'dropdown_font_size', 'dropdown_hover_color', 'dropdown_text_color', 'font_name', 'font_size', 'font_style', 'font_weight', 'inactive_bg_color', 'justify', 'off_bg_color', 'on_bg_color', 'padding', 'placeholder_text_color', 'progress_color', 'selected_color', 'selected_hover_color', 'text_color', 'unselected_color', 'unselected_hover_color')
-
+class RadioGroup(GooeyPieWidget):
     """A widget that displays a list of radio buttons."""
+    _style_properties = (
+        'checked_border_color',
+        'checked_border_width',
+        'font_name',
+        'font_size',
+        'font_style',
+        'font_weight',
+        'hover_color',
+        'size',
+        'text_color',
+        'text_disabled_color',
+        'unchecked_border_color',
+        'unchecked_border_width',
+    )
+
+    # Properties that are applied to child radio buttons, not the frame
+    _RADIO_BUTTON_KEYS = {
+        'checked_border_color', 'checked_border_width',
+        'unchecked_border_color', 'unchecked_border_width',
+        'hover_color', 'text_color', 'text_disabled_color',
+        'size', 'font',
+    }
+
+
+    def _configure_radio_buttons(self, key, value, **ctk_kwargs):
+        """Apply a CTk configure to all child radio buttons and store for future ones."""
+        for rb in self._radio_buttons.values():
+            rb.configure(**ctk_kwargs)
+        self._pending_properties[key] = value
+
+    def _get_property(self, key):
+        """Get property from a child radio button rather than the frame."""
+        if key in self._RADIO_BUTTON_KEYS:
+            if self._radio_buttons:
+                first_rb = next(iter(self._radio_buttons.values()))
+                try:
+                    if key == 'checked_border_color':
+                        return first_rb.cget('fg_color')
+                    elif key == 'unchecked_border_color':
+                        return first_rb.cget('border_color')
+                    elif key == 'checked_border_width':
+                        return first_rb.cget('border_width_checked')
+                    elif key == 'unchecked_border_width':
+                        return first_rb.cget('border_width_unchecked')
+                    elif key == 'text_disabled_color':
+                        return first_rb.cget('text_color_disabled')
+                    elif key == 'size':
+                        return first_rb.cget('radiobutton_width')
+                    else:
+                        return first_rb.cget(key)
+                except ValueError:
+                    pass
+            return self._pending_properties.get(key)
+        return super()._get_property(key)
+
+    def _set_property(self, key, value):
+        """Apply style properties to all child radio buttons."""
+        if key == 'checked_border_color':
+            self._configure_radio_buttons(key, value, fg_color=value)
+        elif key == 'unchecked_border_color':
+            self._configure_radio_buttons(key, value, border_color=value)
+        elif key == 'checked_border_width':
+            self._configure_radio_buttons(key, value, border_width_checked=value)
+        elif key == 'unchecked_border_width':
+            self._configure_radio_buttons(key, value, border_width_unchecked=value)
+        elif key == 'hover_color':
+            self._configure_radio_buttons(key, value, hover_color=value)
+        elif key == 'text_color':
+            self._configure_radio_buttons(key, value, text_color=value)
+        elif key == 'text_disabled_color':
+            self._configure_radio_buttons(key, value, text_color_disabled=value)
+        elif key == 'size':
+            self._configure_radio_buttons(key, value, radiobutton_width=value, radiobutton_height=value)
+        elif key == 'font':
+            self._configure_radio_buttons(key, value, font=value)
+        else:
+            super()._set_property(key, value)
+
+    def _apply_pending_properties(self):
+        """Override to prevent radio-button properties from being applied to the frame."""
+        if self._ctk_object and self._pending_properties:
+            frame_props = {k: v for k, v in self._pending_properties.items() if k not in self._RADIO_BUTTON_KEYS}
+            rb_props = {k: v for k, v in self._pending_properties.items() if k in self._RADIO_BUTTON_KEYS}
+            if frame_props:
+                self._ctk_object.configure(**frame_props)
+            # Keep radio button properties for future _layout_radio_buttons calls
+            self._pending_properties.clear()
+            self._pending_properties.update(rb_props)
 
     def __init__(self, options, orientation='vertical', selected=None, **kwargs):
         """
@@ -30,11 +116,32 @@ class Radiogroup(GooeyPieWidget):
 
     def _layout_radio_buttons(self):
         """Creates and places the radio buttons based on orientation."""
-        # Clear existing buttons if any (though usually this is called once on creation, 
-        # but if orientation changes we need to repack)
         for rb in self._radio_buttons.values():
             rb.destroy()
         self._radio_buttons.clear()
+
+        # Build CTk kwargs from pending style properties
+        style_kwargs = {}
+        for key, value in self._pending_properties.items():
+            if key == 'checked_border_color':
+                style_kwargs['fg_color'] = value
+            elif key == 'unchecked_border_color':
+                style_kwargs['border_color'] = value
+            elif key == 'checked_border_width':
+                style_kwargs['border_width_checked'] = value
+            elif key == 'unchecked_border_width':
+                style_kwargs['border_width_unchecked'] = value
+            elif key == 'hover_color':
+                style_kwargs['hover_color'] = value
+            elif key == 'text_color':
+                style_kwargs['text_color'] = value
+            elif key == 'text_disabled_color':
+                style_kwargs['text_color_disabled'] = value
+            elif key == 'size':
+                style_kwargs['radiobutton_width'] = value
+                style_kwargs['radiobutton_height'] = value
+            elif key == 'font':
+                style_kwargs['font'] = value
 
         for idx, option in enumerate(self._options):
             rb = ctk.CTkRadioButton(
@@ -42,7 +149,8 @@ class Radiogroup(GooeyPieWidget):
                 text=option, 
                 value=option, 
                 variable=self._variable,
-                command=lambda: self._handle_event('change')
+                command=lambda: self._handle_event('change'),
+                **style_kwargs
             )
             self._radio_buttons[option] = rb
             

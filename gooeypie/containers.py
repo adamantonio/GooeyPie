@@ -123,7 +123,6 @@ class Frame(GooeyPieContainer, GooeyPieWidget):
         # Create the internal grid frame with transparent background
         # This handles the extra padding needed to reach 24px from edge (16 + 8 from widget)
         self._grid_master = ctk.CTkFrame(self._ctk_object, fg_color="transparent")
-        self._grid_master = ctk.CTkFrame(self._ctk_object, fg_color="transparent")
         self._grid_master.pack(expand=True, fill="both", padx=CONTAINER_PADDING, pady=CONTAINER_PADDING)
         self._apply_pending_container_properties()
         self._process_pending_children()

@@ -10,7 +10,7 @@ def on_change(event):
     lbl.text = f"Selected: {event.widget.selected} [{event.widget.selected_index}]"
 
 # Vertical Radiogroup
-rg_vertical = gp.Radiogroup(
+rg_vertical = gp.RadioGroup(
     options=["Option 1", "Option 2", "Option 3"], 
     selected="Option 1"
 )
@@ -18,7 +18,7 @@ rg_vertical.add_event_listener('change', on_change)
 main_container.add(rg_vertical, 1, 1)
 
 # Horizontal Radiogroup
-rg_horizontal = gp.Radiogroup(
+rg_horizontal = gp.RadioGroup(
     options=["Item A", "Item B", "Item C"], 
     orientation="horizontal",
     selected="Item B"

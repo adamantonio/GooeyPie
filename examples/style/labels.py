@@ -65,6 +65,16 @@ l_just = gp.Label("This is a multiline\nlabel verified with\njustify='right'")
 l_just.style.justify = "right"
 add_row(app, 'my_label.style.justify = "right"', l_just)
 
+# Row 10: Padding and align
+l_pad = gp.Label("Padding Verified") # Spaces for padding effect
+l_pad.style.bg_color = "teal"
+l_pad.style.text_color = "lightgrey"
+l_pad.style.padding_x = 50
+l_pad.style.padding_y = 50
+l_pad.width = 200
+l_pad.style.align = "left"
+add_row(app, 'my_label.style.padding_x = 50\nmy_label.style.padding_y = 50\nmy_label.style.align = "left"', l_pad)
+
 # Configure columns
 app.set_column_weight(1, 1)
 app.set_column_weight(2, 1)

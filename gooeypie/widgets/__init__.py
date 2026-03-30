@@ -4,7 +4,7 @@ from .entry import Entry
 from .image_button import ImageButton
 from .checkbox import Checkbox
 from .dropdown import Dropdown
-from .radiogroup import Radiogroup
+from .radiogroup import RadioGroup
 from .image import Image
 from .switch import Switch
 from .slider import Slider

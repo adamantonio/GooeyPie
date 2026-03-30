@@ -204,14 +204,49 @@ class GooeyPieStyle:
     def corner_radius(self, v): self._set('corner_radius', v)
 
     @property
+    def size(self): return self._get('size')
+    @size.setter
+    def size(self, v): self._set('size', v)
+
+    @property
     def border_width(self): return self._get('border_width')
     @border_width.setter
     def border_width(self, v): self._set('border_width', v)
 
     @property
+    def checked_border_width(self): return self._get('checked_border_width')
+    @checked_border_width.setter
+    def checked_border_width(self, v): self._set('checked_border_width', v)
+
+    @property
+    def unchecked_border_width(self): return self._get('unchecked_border_width')
+    @unchecked_border_width.setter
+    def unchecked_border_width(self, v): self._set('unchecked_border_width', v)
+
+    @property
+    def checked_border_color(self): return self._get('checked_border_color')
+    @checked_border_color.setter
+    def checked_border_color(self, v): self._set('checked_border_color', v)
+
+    @property
+    def unchecked_border_color(self): return self._get('unchecked_border_color')
+    @unchecked_border_color.setter
+    def unchecked_border_color(self, v): self._set('unchecked_border_color', v)
+
+    @property
     def padding(self): return self._get('border_spacing')
     @padding.setter
     def padding(self, v): self._set('border_spacing', v)
+
+    @property
+    def padding_x(self): return self._get('padding_x')
+    @padding_x.setter
+    def padding_x(self, v): self._set('padding_x', v)
+
+    @property
+    def padding_y(self): return self._get('padding_y')
+    @padding_y.setter
+    def padding_y(self, v): self._set('padding_y', v)
 
     @property
     def bg_color(self): 
@@ -238,6 +273,11 @@ class GooeyPieStyle:
         self._set('hover_color', v)
 
     @property
+    def hover_color(self): return self._get('hover_color')
+    @hover_color.setter
+    def hover_color(self, v): self._set('hover_color', v)
+
+    @property
     def border_color(self): return self._get('border_color')
     @border_color.setter
     def border_color(self, v): self._set('border_color', v)
@@ -261,6 +301,11 @@ class GooeyPieStyle:
     def placeholder_text_color(self): return self._get('placeholder_text_color')
     @placeholder_text_color.setter
     def placeholder_text_color(self, v): self._set('placeholder_text_color', v)
+
+    @property
+    def align(self): return self._get('align')
+    @align.setter
+    def align(self, v): self._set('align', v)
 
     @property
     def justify(self): return self._get('justify')

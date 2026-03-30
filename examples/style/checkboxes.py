@@ -30,6 +30,12 @@ def add_row(app, code_text, widget, align_code="left", align_widget="center"):
 standard_chk = gp.Checkbox("Standard")
 add_row(app, "gp.Checkbox('Standard')", standard_chk)
 
+# Standard disabled
+standard_disabled_chk = gp.Checkbox("Standard Disabled")
+standard_disabled_chk.disabled = True
+# standard_disabled_chk.checked = True
+add_row(app, "gp.Checkbox('Standard Disabled')", standard_disabled_chk)
+
 # Size
 size_chk = gp.Checkbox("Large checkbox")
 size_chk.checkbox_width = 40
