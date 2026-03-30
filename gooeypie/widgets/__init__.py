@@ -11,4 +11,5 @@ from .slider import Slider
 from .buttongroup import ButtonGroup
 from .listbox import Listbox
 from .progressbar import Progressbar
+from .textbox import Textbox
 

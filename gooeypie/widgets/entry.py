@@ -8,7 +8,7 @@ class Entry(GooeyPieWidget):
         'border_color', 
         'border_width', 
         'corner_radius', 
-        'disabled_text_color', 
+        'text_disabled_color', 
         'font_name', 
         'font_size', 
         'font_style', 
@@ -55,7 +55,7 @@ class Entry(GooeyPieWidget):
         self._ctk_object.bind("<KeyRelease>", self._check_change)
 
     def _set_property(self, key, value):
-        if key == 'text_color_disabled':
+        if key == 'text_disabled_color' or key == 'text_color_disabled':
             self._disabled_text_color = value
             self._update_text_color()
         elif key == 'text_color':

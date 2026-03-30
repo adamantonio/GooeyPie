@@ -8,7 +8,7 @@ app = gp.GooeyPieApp("Scrollable Frame Test")
 # Create a scrollable frame
 scroll_frame = gp.ScrollableFrame()
 scroll_frame.style.border_color = "green"
-scroll_frame.style.border_width = 5
+scroll_frame.style.border_width = 1
 app.add(scroll_frame, 0, 0, expand_horizontal=True, expand_vertical=True)
 app.set_row_weight(0, 1)
 app.set_column_weight(0, 1)

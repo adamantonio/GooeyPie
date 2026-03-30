@@ -174,6 +174,8 @@ class GooeyPieStyle:
 
     @font_weight.setter
     def font_weight(self, v):
+        if v not in ("bold", "normal"):
+            raise ValueError(f"Invalid font weight '{v}'. The only valid options are 'bold' or 'normal'.")
         self._update_font(weight=v)
 
     @property
@@ -188,6 +190,8 @@ class GooeyPieStyle:
 
     @font_style.setter
     def font_style(self, v):
+        if v not in ("italic", "normal"):
+            raise ValueError(f"Invalid font style '{v}'. The only valid options are 'italic' or 'normal'.")
         # Map "normal" to "roman" for CTkFont
         slant = "italic" if v == "italic" else "roman"
         self._update_font(slant=slant)
