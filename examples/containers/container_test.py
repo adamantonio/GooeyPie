@@ -16,7 +16,11 @@ container_btn2 = gp.Button('Button 2 in container', None)
 
 # Create containers
 frame = gp.Frame()
+# frame.style.border_color = "red"
+# frame.style.border_width = 5
 container = gp.Container()
+# container.style.border_color = "green"
+# container.style.border_width = 5
 
 # Add widgets
 app.add(direct_lbl, 1, 1)

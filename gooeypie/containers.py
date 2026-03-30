@@ -113,6 +113,12 @@ class GooeyPieContainer(GooeyPieObject):
 
 class Frame(GooeyPieContainer, GooeyPieWidget):
     """A container that is also a widget."""
+    _style_properties = (
+        'bg_color',
+        'border_color',
+        'border_width',
+    )
+
     def __init__(self, **kwargs):
         GooeyPieContainer.__init__(self)
         GooeyPieWidget.__init__(self, **kwargs)
@@ -130,6 +136,12 @@ class Frame(GooeyPieContainer, GooeyPieWidget):
 
 class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
     """A scrollable container that is also a widget."""
+    _style_properties = (
+        'bg_color',
+        'border_color',
+        'border_width',
+    )
+
     def __init__(self, **kwargs):
         GooeyPieContainer.__init__(self)
         GooeyPieWidget.__init__(self, **kwargs)
@@ -137,7 +149,6 @@ class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
 
     def _create_widget(self, master):
         self._ctk_object = ctk.CTkScrollableFrame(master, **self._constructor_kwargs)
-        # CTkScrollableFrame acts as the grid master for its content
         self._grid_master = self._ctk_object
         self._apply_pending_container_properties()
         self._process_pending_children()
@@ -177,6 +188,12 @@ class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
 class Container(GooeyPieContainer, GooeyPieWidget):
     """A minimal, invisible container for layout grouping."""
     
+    _style_properties = (
+        'bg_color',
+        'border_color',
+        'border_width',
+    )
+
     _default_grid_padding = 0
 
     def __init__(self, **kwargs):
