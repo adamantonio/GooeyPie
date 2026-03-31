@@ -548,3 +548,146 @@ class GooeyPieStyle:
     @track_color.setter
     def track_color(self, v): self._set('fg_color', v)
 
+    # DatePicker specific styles
+    @property
+    def month_font_name(self): return self._get('month_font_name')
+    @month_font_name.setter
+    def month_font_name(self, v): self._set('month_font_name', v)
+
+    @property
+    def month_font_size(self): return self._get('month_font_size')
+    @month_font_size.setter
+    def month_font_size(self, v): self._set('month_font_size', v)
+
+    @property
+    def month_font_style(self): return self._get('month_font_style')
+    @month_font_style.setter
+    def month_font_style(self, v): self._set('month_font_style', v)
+
+    @property
+    def month_font_weight(self): return self._get('month_font_weight')
+    @month_font_weight.setter
+    def month_font_weight(self, v): self._set('month_font_weight', v)
+
+    @property
+    def month_text_color(self): return self._get('month_text_color')
+    @month_text_color.setter
+    def month_text_color(self, v): self._set('month_text_color', v)
+
+    @property
+    def day_font_name(self): return self._get('day_font_name')
+    @day_font_name.setter
+    def day_font_name(self, v): self._set('day_font_name', v)
+
+    @property
+    def day_font_size(self): return self._get('day_font_size')
+    @day_font_size.setter
+    def day_font_size(self, v): self._set('day_font_size', v)
+
+    @property
+    def day_font_style(self): return self._get('day_font_style')
+    @day_font_style.setter
+    def day_font_style(self, v): self._set('day_font_style', v)
+
+    @property
+    def day_font_weight(self): return self._get('day_font_weight')
+    @day_font_weight.setter
+    def day_font_weight(self, v): self._set('day_font_weight', v)
+
+    @property
+    def day_text_color(self): return self._get('day_text_color')
+    @day_text_color.setter
+    def day_text_color(self, v): self._set('day_text_color', v)
+
+    @property
+    def month_button_bg_color(self): return self._get('month_button_bg_color')
+    @month_button_bg_color.setter
+    def month_button_bg_color(self, v): self._set('month_button_bg_color', v)
+
+
+
+    # DatePicker specific styles
+    @property
+    def month_font_name(self): return self._get('month_font_name')
+    @month_font_name.setter
+    def month_font_name(self, v): self._set('month_font_name', v)
+
+    @property
+    def month_font_size(self): return self._get('month_font_size')
+    @month_font_size.setter
+    def month_font_size(self, v): self._set('month_font_size', v)
+
+    @property
+    def month_font_style(self): return self._get('month_font_style')
+    @month_font_style.setter
+    def month_font_style(self, v): self._set('month_font_style', v)
+
+    @property
+    def month_font_weight(self): return self._get('month_font_weight')
+    @month_font_weight.setter
+    def month_font_weight(self, v): self._set('month_font_weight', v)
+
+    @property
+    def month_text_color(self): return self._get('month_text_color')
+    @month_text_color.setter
+    def month_text_color(self, v): self._set('month_text_color', v)
+
+    @property
+    def day_font_name(self): return self._get('day_font_name')
+    @day_font_name.setter
+    def day_font_name(self, v): self._set('day_font_name', v)
+
+    @property
+    def day_font_size(self): return self._get('day_font_size')
+    @day_font_size.setter
+    def day_font_size(self, v): self._set('day_font_size', v)
+
+    @property
+    def day_font_style(self): return self._get('day_font_style')
+    @day_font_style.setter
+    def day_font_style(self, v): self._set('day_font_style', v)
+
+    @property
+    def day_font_weight(self): return self._get('day_font_weight')
+    @day_font_weight.setter
+    def day_font_weight(self, v): self._set('day_font_weight', v)
+
+    @property
+    def day_text_color(self): return self._get('day_text_color')
+    @day_text_color.setter
+    def day_text_color(self, v): self._set('day_text_color', v)
+
+    @property
+    def month_button_bg_color(self): return self._get('month_button_bg_color')
+    @month_button_bg_color.setter
+    def month_button_bg_color(self, v): self._set('month_button_bg_color', v)
+
+    @property
+    def month_button_text_color(self): return self._get('month_button_text_color')
+    @month_button_text_color.setter
+    def month_button_text_color(self, v): self._set('month_button_text_color', v)
+
+    @property
+    def date_bg_color(self): return self._get('date_bg_color')
+    @date_bg_color.setter
+    def date_bg_color(self, v): self._set('date_bg_color', v)
+
+    @property
+    def date_border_color(self): return self._get('date_border_color')
+    @date_border_color.setter
+    def date_border_color(self, v): self._set('date_border_color', v)
+
+    @property
+    def date_border_width(self): return self._get('date_border_width')
+    @date_border_width.setter
+    def date_border_width(self, v): self._set('date_border_width', v)
+
+    @property
+    def open_button_bg_color(self): return self._get('open_button_bg_color')
+    @open_button_bg_color.setter
+    def open_button_bg_color(self, v): self._set('open_button_bg_color', v)
+
+    @property
+    def open_button_text_color(self): return self._get('open_button_text_color')
+    @open_button_text_color.setter
+    def open_button_text_color(self, v): self._set('open_button_text_color', v)
