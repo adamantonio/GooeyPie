@@ -9,6 +9,10 @@ class TopLevelWindow(GooeyPieContainer):
         super().__init__()
         self._width = None
         self._height = None
+        self._interval_ids = {}
+        self._interval_counter = 0
+        self._timeout_ids = {}
+        self._timeout_counter = 0
 
     def _update_geometry(self):
         if hasattr(self, '_running') and not self._running:
@@ -244,6 +248,52 @@ class GooeyPieApp(TopLevelWindow):
     def on_load(self, event_function):
         """Sets the function to call when the application window first loads."""
         self._on_load_event_function = event_function
+
+    def set_interval(self, ms, function, *args):
+        """Repeatedly calls a function every 'ms' milliseconds."""
+        self._interval_counter += 1
+        timer_id = f"interval_{self._interval_counter}"
+        
+        def recurring_wrapper():
+            if timer_id not in self._interval_ids:
+                return
+            
+            # Schedule the next execution first stringently 
+            next_after_id = self._ctk_object.after(ms, recurring_wrapper)
+            self._interval_ids[timer_id] = next_after_id
+            
+            # Then execute the user function
+            function(*args)
+            
+        initial_after_id = self._ctk_object.after(ms, recurring_wrapper)
+        self._interval_ids[timer_id] = initial_after_id
+        return timer_id
+
+    def clear_interval(self, timer_id):
+        """Stops an interval from further execution."""
+        if timer_id in self._interval_ids:
+            after_id = self._interval_ids.pop(timer_id)
+            self._ctk_object.after_cancel(after_id)
+
+    def set_timeout(self, ms, function, *args):
+        """Calls a function once after 'ms' milliseconds."""
+        self._timeout_counter += 1
+        timer_id = f"timeout_{self._timeout_counter}"
+        
+        def wrapper():
+            if timer_id in self._timeout_ids:
+                del self._timeout_ids[timer_id]
+            function(*args)
+            
+        after_id = self._ctk_object.after(ms, wrapper)
+        self._timeout_ids[timer_id] = after_id
+        return timer_id
+        
+    def clear_timeout(self, timer_id):
+        """Cancels a pending timeout from executing."""
+        if timer_id in self._timeout_ids:
+            after_id = self._timeout_ids.pop(timer_id)
+            self._ctk_object.after_cancel(after_id)
 
     def quit(self, event=None):
         """Terminates the application. Executes the on_quit event if one is set."""
