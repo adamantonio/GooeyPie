@@ -21,6 +21,7 @@ class Button(GooeyPieWidget):
     )
 
     _DEFAULT_BUTTON_DISABLED_COLOR = '#808080'
+    _DEFAULT_TEXT_DISABLED_COLOR = '#e0e0e0'
 
     def __init__(self, text, event_function, **kwargs):
         if not callable(event_function):
@@ -33,6 +34,10 @@ class Button(GooeyPieWidget):
         super().__init__(text=text, **kwargs)
         self._button_disabled_color = None
         self._saved_button_color = None
+        self._saved_text_disabled_color = None
+        # Tracks whether the user has explicitly set a custom text_disabled_color via style.
+        # cget() always returns a non-None value at runtime, so we can't use None as a sentinel.
+        self._has_custom_text_disabled_color = False
         self.on_activate(event_function)
         
         self._constructor_kwargs['command'] = lambda: self._handle_event('activate')
@@ -55,15 +60,24 @@ class Button(GooeyPieWidget):
             self._ctk_object.configure(state=state)
         self._constructor_kwargs['state'] = state
 
-        # Swap button color for the disabled variant
+        # Swap button colour and text colour for the disabled variants
         if value:
             self._saved_button_color = self._get_property('fg_color')
             disabled_color = self._button_disabled_color or self._DEFAULT_BUTTON_DISABLED_COLOR
             self._set_property('fg_color', disabled_color)
+
+            if not self._has_custom_text_disabled_color:
+                # No user override — apply our high-contrast default
+                self._set_property('text_color_disabled', self._DEFAULT_TEXT_DISABLED_COLOR)
+            # If the user has set a custom colour, CTk already has it applied — nothing to do
         else:
             if self._saved_button_color is not None:
                 self._set_property('fg_color', self._saved_button_color)
                 self._saved_button_color = None
+
+            if not self._has_custom_text_disabled_color:
+                # Restore CTk theme defaults
+                self._set_property('text_color_disabled', ['gray74', 'gray60'])
 
     @property
     def text(self):

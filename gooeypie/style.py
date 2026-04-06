@@ -294,12 +294,18 @@ class GooeyPieStyle:
     @property
     def disabled_text_color(self): return self._get('text_color_disabled')
     @disabled_text_color.setter
-    def disabled_text_color(self, v): self._set('text_color_disabled', v)
+    def disabled_text_color(self, v):
+        self._set('text_color_disabled', v)
+        if hasattr(self._widget, '_has_custom_text_disabled_color'):
+            self._widget._has_custom_text_disabled_color = True
 
     @property
     def text_disabled_color(self): return self._get('text_color_disabled')
     @text_disabled_color.setter
-    def text_disabled_color(self, v): self._set('text_color_disabled', v)
+    def text_disabled_color(self, v):
+        self._set('text_color_disabled', v)
+        if hasattr(self._widget, '_has_custom_text_disabled_color'):
+            self._widget._has_custom_text_disabled_color = True
 
     @property
     def placeholder_text_color(self): return self._get('placeholder_text_color')
