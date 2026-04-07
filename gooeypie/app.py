@@ -1,7 +1,29 @@
 import customtkinter as ctk
 import os
+import sys
+import tempfile
+from pathlib import Path
 from .containers import GooeyPieContainer, CONTAINER_PADDING
 from .events import GooeyPieEvent
+
+_ASSETS_DIR = Path(__file__).parent / 'assets' / 'images'
+_DEFAULT_ICON = _ASSETS_DIR / 'default_app_icon.png'
+_DEFAULT_ICON_WIN = _ASSETS_DIR / 'default_app_icon.ico'
+
+# Cache the temp ICO path so we only convert once per session (for user-supplied PNGs)
+_cached_ico_path: str = None
+
+def _get_ico_for_png(png_path: Path) -> str:
+    """Converts a PNG to a temporary ICO file and returns the path (Windows only)."""
+    global _cached_ico_path
+    if _cached_ico_path and os.path.exists(_cached_ico_path):
+        return _cached_ico_path
+    from PIL import Image
+    img = Image.open(png_path)
+    ico_path = os.path.join(tempfile.gettempdir(), '_gooeypie_icon.ico')
+    img.save(ico_path, format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (32, 32), (16, 16)])
+    _cached_ico_path = ico_path
+    return ico_path
 
 class TopLevelWindow(GooeyPieContainer):
     """Base class for top-level windows to share properties."""
@@ -83,13 +105,32 @@ class TopLevelWindow(GooeyPieContainer):
         current_horz = self._ctk_object.resizable()[0]
         self._ctk_object.resizable(current_horz, bool(value))
 
+    def _set_window_icon(self, ctk_win, icon_path: Path):
+        """Internal: applies an icon to the given CTk window object.
+        On Windows, uses iconbitmap with an ICO file (bundled or converted from PNG).
+        On other platforms, uses iconphoto with a PNG.
+        """
+        if sys.platform.startswith('win'):
+            # Prefer a native .ico file; fall back to converting a PNG
+            if icon_path.suffix.lower() == '.ico':
+                ico_path = str(icon_path)
+            else:
+                ico_path = _get_ico_for_png(icon_path)
+            # Setting iconbitmap also marks CTk's _iconbitmap_method_called=True,
+            # which prevents CTk's after(200) from replacing our icon with the CTk logo.
+            ctk_win.iconbitmap(ico_path)
+        else:
+            from PIL import Image, ImageTk
+            self._icon_image = ImageTk.PhotoImage(Image.open(icon_path))
+            ctk_win.iconphoto(True, self._icon_image)
+
     def set_icon(self, icon):
         if not os.path.exists(icon):
             raise FileNotFoundError(f"Icon file not found: {icon}")
-        from PIL import Image, ImageTk
-        img = ImageTk.PhotoImage(Image.open(icon))
-        self._ctk_object.iconphoto(False, img)
-        self._icon_image = img
+        global _cached_ico_path
+        _cached_ico_path = None  # Invalidate cache so the new icon is converted fresh
+        self._set_window_icon(self._ctk_object, Path(icon))
+
 
     def set_size(self, width, height):
         self._width = width
@@ -108,8 +149,13 @@ class TopLevelWindow(GooeyPieContainer):
         alert_win = ctk.CTkToplevel(master=self._ctk_object)
         alert_win.title(title)
         
-        if hasattr(self, '_icon_image') and self._icon_image:
-            alert_win.iconphoto(False, self._icon_image)
+        _default_icon = _DEFAULT_ICON_WIN if sys.platform.startswith('win') and _DEFAULT_ICON_WIN.exists() else _DEFAULT_ICON
+        if _default_icon.exists():
+            if sys.platform.startswith('win'):
+                ico_path = str(_default_icon)  # Already an .ico — no conversion needed
+                alert_win.after(250, lambda: alert_win.iconbitmap(ico_path))
+            elif hasattr(self, '_icon_image') and self._icon_image:
+                alert_win.iconphoto(False, self._icon_image)
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
         light_path = os.path.join(current_dir, 'assets', 'images', f'{category}_light@2x.png')
@@ -195,7 +241,15 @@ class GooeyPieApp(TopLevelWindow):
         self._width = None
         self._height = None
         self._running = False
-        
+        self._icon_image = None
+
+        # Apply default icon immediately.
+        # On Windows: calling iconbitmap() sets CTk's internal _iconbitmap_method_called=True,
+        # which prevents CTk's after(200) from replacing our icon with its own CTk logo.
+        _default_icon = _DEFAULT_ICON_WIN if sys.platform.startswith('win') and _DEFAULT_ICON_WIN.exists() else _DEFAULT_ICON
+        if _default_icon.exists():
+            self._set_window_icon(self._ctk_object, _default_icon)
+
         # Initialize basic settings
         self._ctk_object.title(title)
         # Note: We do NOT set geometry here, allowing properties to auto-size to content
@@ -337,6 +391,19 @@ class Window(TopLevelWindow):
         self._ctk_object.withdraw()
         
         self._ctk_object.title(title)
+
+        # Apply default icon.
+        # CTkToplevel has a hard-coded after(200) that sets the CTk logo, so we must
+        # schedule our icon slightly later at after(250) to win the race.
+        _default_icon = _DEFAULT_ICON_WIN if sys.platform.startswith('win') and _DEFAULT_ICON_WIN.exists() else _DEFAULT_ICON
+        if _default_icon.exists():
+            if sys.platform.startswith('win'):
+                ico_path = str(_default_icon)  # Already an .ico — no conversion needed
+                self._ctk_object.after(250, lambda: self._ctk_object.iconbitmap(ico_path))
+            else:
+                from PIL import Image, ImageTk
+                self._icon_image = ImageTk.PhotoImage(Image.open(_default_icon))
+                self._ctk_object.after(250, lambda: self._ctk_object.iconphoto(True, self._icon_image))
         
         # Default close behavior is to hide
         self._ctk_object.protocol("WM_DELETE_WINDOW", self._handle_wm_delete_window)
