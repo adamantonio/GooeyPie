@@ -1,6 +1,7 @@
 from .label import Label
 from .button import Button
 from .entry import Entry
+from .secret import Secret
 from .image_button import ImageButton
 from .checkbox import Checkbox
 from .dropdown import Dropdown

@@ -116,7 +116,11 @@ class GooeyPieWidget(GooeyPieObject):
 
     @property
     def disabled(self):
-        val = self._get_property('state') 
+        if self._ctk_object:
+            val = self._get_property('state')
+        else:
+            # Before placement, state is stored in _constructor_kwargs, not _pending_properties
+            val = self._constructor_kwargs.get('state', 'normal')
         return val == 'disabled'
 
     @disabled.setter
