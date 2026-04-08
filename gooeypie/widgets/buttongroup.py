@@ -22,6 +22,7 @@ class ButtonGroup(GooeyPieWidget):
     )
 
     _DEFAULT_SELECTED_DISABLED_COLOR = '#808080'
+    _DEFAULT_TEXT_DISABLED_COLOR = '#e0e0e0'
 
     """A widget that displays a set of segmented buttons (mutually exclusive options)."""
 
@@ -42,6 +43,8 @@ class ButtonGroup(GooeyPieWidget):
         self._saved_selected_color = None
         self._unselected_disabled_color = None
         self._saved_unselected_color = None
+        self._saved_text_disabled_color = None
+        self._has_custom_text_disabled_color = False
 
     def _create_widget(self, master):
         self._variable = ctk.StringVar(value=self._initial_selected if self._initial_selected else "")
@@ -79,6 +82,11 @@ class ButtonGroup(GooeyPieWidget):
             if self._unselected_disabled_color:
                 self._saved_unselected_color = self._get_property('unselected_color')
                 self._set_property('unselected_color', self._unselected_disabled_color)
+
+            if not self._has_custom_text_disabled_color:
+                # CTkSegmentedButton uses text_color_disabled (not text_color) for disabled labels
+                self._saved_text_disabled_color = self._get_property('text_color_disabled')
+                self._set_property('text_color_disabled', self._DEFAULT_TEXT_DISABLED_COLOR)
         else:
             if self._saved_selected_color is not None:
                 self._set_property('selected_color', self._saved_selected_color)
@@ -86,6 +94,9 @@ class ButtonGroup(GooeyPieWidget):
             if self._saved_unselected_color is not None:
                 self._set_property('unselected_color', self._saved_unselected_color)
                 self._saved_unselected_color = None
+            if not self._has_custom_text_disabled_color and self._saved_text_disabled_color is not None:
+                self._set_property('text_color_disabled', self._saved_text_disabled_color)
+                self._saved_text_disabled_color = None
 
     @property
     def width(self):
