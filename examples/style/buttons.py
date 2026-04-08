@@ -4,7 +4,7 @@ def dummy_event(event):
     print(f"Button '{event.widget.text}' pressed")
 
 app = gp.GooeyPieApp("Button Styles")
-# app.theme = "light"
+app.theme = "light"
 
 # Header
 code_header = gp.Label("Code")
@@ -29,74 +29,55 @@ def add_row(app, code_text, widget, align_code="left", align_widget="center"):
     _next_row += 1
 
 # Default Button
-b1 = gp.Button("Submit", dummy_event)
-add_row(app, 'Default Button', b1)
+default_btn = gp.Button("Default", dummy_event)
+add_row(app, 'my_button = gp.Button("Default", event_function)', default_btn)
 
 # Disabled button (standard)
-b9 = gp.Button("Disabled", dummy_event)
-b9.disabled = True
-add_row(app, 'my_button.disabled = True', b9)
+default_disabled_btn = gp.Button("Disabled", dummy_event)
+default_disabled_btn.disabled = True
+add_row(app, 'my_button.disabled = True', default_disabled_btn)
 
-# Disabled text color
-b10 = gp.Button("Disabled", dummy_event)
-b10.disabled = True
-b10.style.text_disabled_color = 'black'
-add_row(app, "my_button.disabled = True\nmy_button.style.text_disabled_color = 'black'", b10)
+# Disabled text and button color
+disabled_color_btn = gp.Button("Disabled", dummy_event)
+disabled_color_btn.disabled = True
+disabled_color_btn.style.text_disabled_color = 'pink'
+disabled_color_btn.style.button_disabled_color = 'darkred'
+add_row(app, "my_button.disabled = True\nmy_button.style.text_disabled_color = 'pink'\nmy_button.style.button_disabled_color = 'darkred'", disabled_color_btn)
 
-# Disabled button color
-b10b = gp.Button("Disabled", dummy_event)
-b10b.style.button_disabled_color = 'darkred'
-b10b.disabled = True
-add_row(app, "my_button.disabled = True\nmy_button.style.button_disabled_color = 'darkred'", b10b)
+# Width and height
+width_height_btn = gp.Button("Wider and Taller", dummy_event)
+width_height_btn.width = 200
+width_height_btn.height = 50
+add_row(app, 'my_button.width = 200\nmy_button.height = 50', width_height_btn)
 
-# Width
-b2 = gp.Button("Fixed Width", dummy_event)
-b2.width = 200
-add_row(app, 'my_button.width = 200', b2)
-
-# Height
-b_h = gp.Button("Fixed Height", dummy_event)
-b_h.height = 50
-add_row(app, 'my_button.height = 50', b_h)
-
-# Background Color
-b3 = gp.Button("Crimson", dummy_event)
-b3.style.button_color = 'crimson'
-add_row(app, "my_button.style.button_color = 'crimson'", b3)
-
-# Hover Color
-b4 = gp.Button("Hover Me", dummy_event)
-b4.style.button_hover_color = 'green'
-add_row(app, "my_button.style.button_hover_color = 'green'", b4)
+# Button and text colour
+text_hover_btn = gp.Button("Crimson", dummy_event)
+text_hover_btn.style.text_color = 'black'
+text_hover_btn.style.button_color = 'skyblue'
+text_hover_btn.style.button_hover_color = 'lightgreen'
+add_row(app, "my_button.style.text_color = 'black'\nmy_button.style.button_color = 'skyblue'\nmy_button.style.button_hover_color = 'lightgreen'", text_hover_btn)
 
 # Corner Radius
-b5 = gp.Button("Rounded", dummy_event)
-b5.style.corner_radius = 20
-add_row(app, 'my_button.style.corner_radius = 20', b5)
+corner_radius_btn = gp.Button("Rounded", dummy_event)
+corner_radius_btn.style.corner_radius = 20
+add_row(app, 'my_button.style.corner_radius = 20', corner_radius_btn)
 
 # Border
-b6 = gp.Button("Bordered", dummy_event)
-b6.style.border_width = 5
-b6.style.border_color = "orange"
-add_row(app, 'my_button.style.border_width = 5 \n(and border_color or no effect)', b6)
+border_btn = gp.Button("Bordered", dummy_event)
+border_btn.style.border_width = 5
+border_btn.style.border_color = "orange"
+add_row(app, 'my_button.style.border_width = 5 \n(and border_color or no effect)', border_btn)
 
-# Text Color
-b7 = gp.Button("Colored Text", dummy_event)
-b7.style.text_color = "yellow"
-add_row(app, "my_button.style.text_color = 'yellow'", b7)
-
-# Font Size
-b8 = gp.Button("Big Text", dummy_event)
-b8.style.font_size = 20
-add_row(app, 'my_button.style.font_size = 20', b8)
+# Font
+font_btn = gp.Button("Big Text", dummy_event)
+font_btn.style.font_size = 20
+font_btn.style.font_weight = "bold"
+font_btn.style.font_name = "Consolas", "monospace"
+add_row(app, 'my_button.style.font_size = 20\nmy_button.style.font_weight = "bold"\nmy_button.style.font_name = "Consolas", "monospace"', font_btn)
 
 # Border spacing
-b11 = gp.Button("Spacious button", dummy_event)
-b11.style.padding = 20
-add_row(app, 'my_button.style.padding = 10', b11)
-
-# Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+padding_btn = gp.Button("Spacious button", dummy_event)
+padding_btn.style.padding = 20
+add_row(app, 'my_button.style.padding = 20', padding_btn)
 
 app.run()

@@ -24,7 +24,7 @@ class Button(GooeyPieWidget):
     _DEFAULT_TEXT_DISABLED_COLOR = '#e0e0e0'
 
     def __init__(self, text, event_function, **kwargs):
-        if not callable(event_function):
+        if event_function is not None and not callable(event_function):
             raise TypeError(
                 f"The event_function must be a function, but received {type(event_function).__name__}. "
                 "Ensure that you specify only the name of the function (e.g. my_function), "
@@ -38,7 +38,8 @@ class Button(GooeyPieWidget):
         # Tracks whether the user has explicitly set a custom text_disabled_color via style.
         # cget() always returns a non-None value at runtime, so we can't use None as a sentinel.
         self._has_custom_text_disabled_color = False
-        self.on_activate(event_function)
+        if event_function:
+            self.on_activate(event_function)
         
         self._constructor_kwargs['command'] = lambda: self._handle_event('activate')
 
