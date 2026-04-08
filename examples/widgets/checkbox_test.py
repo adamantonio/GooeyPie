@@ -64,13 +64,15 @@ app.add(accept_terms, 1, 1)
 app.add(check_frame, 1, 2)
 
 todo_frame = gp.Frame()
-todo_frame.set_column_weight(2, 1)
 for count in range(3):
     todo_chk = gp.Checkbox()
     todo_task = gp.Entry()
     todo_task.width = 400
     todo_frame.add(todo_chk, 1, count)
     todo_frame.add(todo_task, 2, count, expand_horizontal=True)
+todo_frame.set_column_weights(0, 1)
+
+
 
 app.add(todo_frame, 1, 3, expand_horizontal=True)
 app.add(disabled_frame, 1, 5)

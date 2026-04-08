@@ -35,6 +35,8 @@ app = gp.GooeyPieApp("Dropdown Test")
 # Test for selection
 selection_lbl = gp.Label("Selection Test")
 selection_dd = gp.Dropdown(["Item 1", "Item 2", "Item 3"])
+selection_dd.on_change(selection)
+
 selection_chk = gp.Checkbox("Enabled")
 selection_chk.checked = True
 selection_chk.on_change(update_state)

@@ -50,7 +50,7 @@ add_row(app, 'my_entry.style.placeholder_text_color = "red", "salmon"', e_ph_col
 e_disabled = gp.Entry()
 e_disabled.text = "This text is disabled"
 e_disabled.disabled = True
-e_disabled.style.disabled_text_color = "green", "lightgreen"
+e_disabled.style.text_disabled_color = "green", "lightgreen"
 add_row(app, 'my_entry.style.disabled = True\nmy_entry.style.disabled_text_color = "green", "lightgreen"', e_disabled)
 
 # Row 7: Font Size

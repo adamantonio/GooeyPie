@@ -4,10 +4,10 @@ app = gp.GooeyPieApp("Stretch Test")
 app.width = 400
 
 # --- Widget Creation ---
-btn_normal = gp.Button("Normal Button")
-btn_stretch_x = gp.Button("Stretch X")
-btn_stretch_y = gp.Button("Stretch Y")
-btn_stretch_both = gp.Button("Stretch Both")
+btn_normal = gp.Button("Normal Button", None)
+btn_stretch_x = gp.Button("Stretch X", None)
+btn_stretch_y = gp.Button("Stretch Y", None)
+btn_stretch_both = gp.Button("Stretch Both", None)
 
 # --- Layout ---
 # Use weights to allow stretching
