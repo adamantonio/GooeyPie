@@ -10,6 +10,9 @@ class GooeyPieContainer(GooeyPieObject):
         self._pending_children = []
         self._pending_column_weights = {}
         self._pending_row_weights = {}
+        self._user_column_weights = set()  # columns explicitly weighted by the user
+        self._num_columns = 0  # highest column index seen (1-based)
+        self._num_rows = 0     # highest row index seen (1-based)
         self._grid_master = None # Will be set by subclasses
 
     def _get_grid_master(self):
@@ -32,6 +35,8 @@ class GooeyPieContainer(GooeyPieObject):
                 'align_horizontal': align_horizontal, 'align_vertical': align_vertical,
                 'kwargs': kwargs
             })
+            self._num_columns = max(self._num_columns, x + column_span - 1)
+            self._num_rows = max(self._num_rows, y + row_span - 1)
             return
 
         # Create the widget if it hasn't been created, using the target master
@@ -73,6 +78,13 @@ class GooeyPieContainer(GooeyPieObject):
         # Grid it
         widget._ctk_object.grid(row=y, column=x, rowspan=row_span, columnspan=column_span, sticky=sticky, **kwargs)
         self._children.append(widget)
+        self._num_columns = max(self._num_columns, x + column_span - 1)
+        self._num_rows = max(self._num_rows, y + row_span - 1)
+
+        # Auto-assign weight=1 to each column spanned, unless the user has set a custom weight
+        for col in range(x, x + column_span):
+            if col not in self._user_column_weights:
+                target_master.grid_columnconfigure(col, weight=1)
 
     def _process_pending_children(self):
         """Adds any children that were added before the container was created."""
@@ -85,11 +97,22 @@ class GooeyPieContainer(GooeyPieObject):
         self._pending_children = []
 
     def set_column_weight(self, index, weight):
+        self._user_column_weights.add(index)
         master = self._get_grid_master()
         if master:
             master.grid_columnconfigure(index, weight=weight)
         else:
             self._pending_column_weights[index] = weight
+
+    def set_column_weights(self, *weights):
+        """Sets the weight of all columns at once. The number of weights must match the number of columns."""
+        if len(weights) != self._num_columns:
+            raise ValueError(
+                f"set_column_weights() expected {self._num_columns} argument(s) "
+                f"(one per column) but received {len(weights)}."
+            )
+        for i, weight in enumerate(weights, start=1):
+            self.set_column_weight(i, weight)
 
     def set_row_weight(self, index, weight):
         master = self._get_grid_master()
@@ -97,6 +120,16 @@ class GooeyPieContainer(GooeyPieObject):
             master.grid_rowconfigure(index, weight=weight)
         else:
             self._pending_row_weights[index] = weight
+
+    def set_row_weights(self, *weights):
+        """Sets the weight of all rows at once. The number of weights must match the number of rows."""
+        if len(weights) != self._num_rows:
+            raise ValueError(
+                f"set_row_weights() expected {self._num_rows} argument(s) "
+                f"(one per row) but received {len(weights)}."
+            )
+        for i, weight in enumerate(weights, start=1):
+            self.set_row_weight(i, weight)
 
     def _apply_pending_container_properties(self):
         """Applies pending grid configurations."""
@@ -109,6 +142,7 @@ class GooeyPieContainer(GooeyPieObject):
             for index, weight in self._pending_row_weights.items():
                 master.grid_rowconfigure(index, weight=weight)
             self._pending_row_weights.clear()
+
 
 
 class Frame(GooeyPieContainer, GooeyPieWidget):

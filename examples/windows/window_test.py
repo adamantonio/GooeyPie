@@ -53,11 +53,6 @@ app.add(alert_btn, 1, 4)
 window_alert_btn = gp.Button("Alert Child", show_alert)
 window.add(window_alert_btn, 1, 2)
 
-# Automatically close after 3 seconds for testing purposes
-def end_test():
-    print("Tests completed successfully")
-    app._ctk_object.destroy()
-
 def trigger_alert():
     app.alert("Auto Alert", "This is an automatic alert trigger." * 10, "info")
 
