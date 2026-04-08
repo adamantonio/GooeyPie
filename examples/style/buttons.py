@@ -4,7 +4,7 @@ def dummy_event(event):
     print(f"Button '{event.widget.text}' pressed")
 
 app = gp.GooeyPieApp("Button Styles")
-app.theme = "light"
+# app.theme = "light"
 
 # Header
 code_header = gp.Label("Code")

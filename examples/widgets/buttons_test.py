@@ -24,11 +24,11 @@ app = gp.GooeyPieApp("Buttons Test")
 simple_lbl = gp.Label("Simple Button")
 simple_btn = gp.Button("Click Me", button_press)
 simple_status = gp.Label("Status")
+simple_status.width = 200
 
 app.add(simple_lbl, 1, 1)
 app.add(simple_btn, 3, 1)
 app.add(simple_status, 4, 1)
-
 
 # Test the disabled property
 disabled_lbl = gp.Label("Disabled Button")

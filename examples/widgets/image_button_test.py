@@ -21,11 +21,11 @@ folder_btn = gp.ImageButton("../images/folder.png", on_image_click)
 
 # Button styling
 
-# edit_btn.style.font_size = 20
-# edit_btn.style.padding = 10
-# save_btn.style.font_size = 20
-# save_btn.style.padding = 10
-# folder_btn.style.padding = 10
+edit_btn.style.font_size = 20
+edit_btn.style.padding = 10
+save_btn.style.font_size = 20
+save_btn.style.padding = 10
+folder_btn.style.padding = 10
 
 # edit_btn.style.button_color = 'white'
 # edit_btn.style.button_hover_color = 'grey'
