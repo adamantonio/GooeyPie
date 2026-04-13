@@ -133,23 +133,14 @@ class Checkbox(GooeyPieWidget):
 
 
     @property
-    def checkbox_width(self):
+    def size(self):
         return self._get_property('checkbox_width')
 
-    @checkbox_width.setter
-    def checkbox_width(self, value):
+    @size.setter
+    def size(self, value):
         if self._ctk_object:
-            self._ctk_object.configure(checkbox_width=value)
+            self._ctk_object.configure(checkbox_width=value, checkbox_height=value)
         self._constructor_kwargs['checkbox_width'] = value
-
-    @property
-    def checkbox_height(self):
-        return self._get_property('checkbox_height')
-
-    @checkbox_height.setter
-    def checkbox_height(self, value):
-        if self._ctk_object:
-            self._ctk_object.configure(checkbox_height=value)
         self._constructor_kwargs['checkbox_height'] = value
 
     def toggle(self):

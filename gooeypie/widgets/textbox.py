@@ -19,7 +19,7 @@ class Textbox(GooeyPieWidget):
     )
 
     def __init__(self, text="", **kwargs):
-        self._disabled_text_color = kwargs.pop('text_color_disabled', None)
+        self._text_disabled_color = kwargs.pop('text_color_disabled', None)
         self._original_text_color = None
         self._default_disabled_color = ["gray60", "gray40"]  # Lighter text for disabled state
         super().__init__(**kwargs)
@@ -60,7 +60,7 @@ class Textbox(GooeyPieWidget):
 
     def _set_property(self, key, value):
         if key == 'text_disabled_color' or key == 'text_color_disabled':
-            self._disabled_text_color = value
+            self._text_disabled_color = value
             self._update_text_color()
         elif key == 'text_color':
             self._original_text_color = value
@@ -75,7 +75,7 @@ class Textbox(GooeyPieWidget):
     def _update_text_color(self):
         """Updates the text color based on current state (disabled/normal)."""
         if self.disabled:
-            color = self._disabled_text_color
+            color = self._text_disabled_color
             if not color:
                 color = self._default_disabled_color
             if self._ctk_object:

@@ -374,6 +374,12 @@ class GooeyPieApp(TopLevelWindow):
                 e = GooeyPieEvent('load', self, original_event=event)
                 self._on_load_event_function(e)
 
+    def copy_to_clipboard(self, text):
+        """Copies the given text to the system clipboard."""
+        self._ctk_object.clipboard_clear()
+        self._ctk_object.clipboard_append(text)
+        self._ctk_object.update()
+
 
 class Window(TopLevelWindow):
     """An additional top-level application window."""

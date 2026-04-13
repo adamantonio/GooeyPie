@@ -23,7 +23,7 @@ class RadioGroup(GooeyPieWidget):
     _RADIO_BUTTON_KEYS = {
         'checked_border_color', 'checked_border_width',
         'unchecked_border_color', 'unchecked_border_width',
-        'hover_color', 'text_color', 'text_disabled_color',
+        'hover_color', 'text_color', 'text_color_disabled',
         'size', 'font',
     }
 
@@ -48,7 +48,7 @@ class RadioGroup(GooeyPieWidget):
                         return first_rb.cget('border_width_checked')
                     elif key == 'unchecked_border_width':
                         return first_rb.cget('border_width_unchecked')
-                    elif key == 'text_disabled_color':
+                    elif key == 'text_color_disabled':
                         return first_rb.cget('text_color_disabled')
                     elif key == 'size':
                         return first_rb.cget('radiobutton_width')
@@ -73,7 +73,7 @@ class RadioGroup(GooeyPieWidget):
             self._configure_radio_buttons(key, value, hover_color=value)
         elif key == 'text_color':
             self._configure_radio_buttons(key, value, text_color=value)
-        elif key == 'text_disabled_color':
+        elif key == 'text_color_disabled':
             self._configure_radio_buttons(key, value, text_color_disabled=value)
         elif key == 'size':
             self._configure_radio_buttons(key, value, radiobutton_width=value, radiobutton_height=value)
@@ -109,7 +109,9 @@ class RadioGroup(GooeyPieWidget):
         self._variable = None
 
     def _create_widget(self, master):
-        self._ctk_object = ctk.CTkFrame(master, fg_color="transparent", **self._constructor_kwargs)
+        kwargs = self._constructor_kwargs.copy()
+        kwargs.pop('state', None)
+        self._ctk_object = ctk.CTkFrame(master, fg_color="transparent", **kwargs)
         self._variable = ctk.StringVar(value=self._initial_selected if self._initial_selected else "")
 
         self._layout_radio_buttons()
@@ -135,13 +137,15 @@ class RadioGroup(GooeyPieWidget):
                 style_kwargs['hover_color'] = value
             elif key == 'text_color':
                 style_kwargs['text_color'] = value
-            elif key == 'text_disabled_color':
+            elif key == 'text_color_disabled':
                 style_kwargs['text_color_disabled'] = value
             elif key == 'size':
                 style_kwargs['radiobutton_width'] = value
                 style_kwargs['radiobutton_height'] = value
             elif key == 'font':
                 style_kwargs['font'] = value
+
+        state = self._constructor_kwargs.get('state', 'normal')
 
         for idx, option in enumerate(self._options):
             rb = ctk.CTkRadioButton(
@@ -150,6 +154,7 @@ class RadioGroup(GooeyPieWidget):
                 value=option, 
                 variable=self._variable,
                 command=lambda: self._handle_event('change'),
+                state=state,
                 **style_kwargs
             )
             self._radio_buttons[option] = rb
@@ -213,9 +218,6 @@ class RadioGroup(GooeyPieWidget):
     @property
     def options(self):
         return self._options
-    
-    # We generally don't support changing options dynamically in this simple version, 
-    # but strictly speaking we could. For now let's keep it read-only or re-layout if needed.
 
     def disable_item(self, option):
         """Disables an individual radio button by its option text."""
@@ -246,6 +248,19 @@ class RadioGroup(GooeyPieWidget):
             self.enable_item(option)
         else:
             raise IndexError(f"Index {index} out of range for Radiogroup options")
+
+    @property
+    def disabled(self):
+        """Gets or sets whether the entire radiogroup is disabled."""
+        return self._constructor_kwargs.get('state', 'normal') == 'disabled'
+
+    @disabled.setter
+    def disabled(self, value):
+        state = 'disabled' if value else 'normal'
+        self._constructor_kwargs['state'] = state
+        if self._ctk_object:
+            for rb in self._radio_buttons.values():
+                rb.configure(state=state)
 
     def on_change(self, event_function):
         """Sets the event to be called when the selected radio button changes."""

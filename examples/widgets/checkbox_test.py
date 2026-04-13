@@ -57,8 +57,7 @@ disabled_frame.add(set_check_value, 4, 1)
 disabled_frame.add(status_lbl, 5, 1)
 
 large_chk = gp.Checkbox("Novelty checkbox")
-large_chk.checkbox_width = 100
-large_chk.checkbox_height = 100
+large_chk.size = 100
 
 app.add(accept_terms, 1, 1)
 app.add(check_frame, 1, 2)

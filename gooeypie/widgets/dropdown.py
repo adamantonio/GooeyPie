@@ -9,7 +9,7 @@ class Dropdown(GooeyPieWidget):
         'button_color', 
         'button_hover_color', 
         'corner_radius', 
-        'disabled_text_color', 
+        'text_disabled_color', 
         'dropdown_hover_color', 
         'font_name', 
         'font_size', 
@@ -19,23 +19,23 @@ class Dropdown(GooeyPieWidget):
     )
 
 
-    def __init__(self, values=None, selected_value=None, **kwargs):
+    def __init__(self, options=None, selected_value=None, **kwargs):
         """
-        :param values: A list or tuple of string values to populate the dropdown.
+        :param options: A list or tuple of string values to populate the dropdown.
         :param selected_value: The initially selected value (optional).
         :param kwargs: Additional arguments for the widget.
         """
-        if values is None:
-            values = []
+        if options is None:
+            options = []
         
         # Validation: values MUST be a list or tuple, specifically NOT a string
-        if isinstance(values, str):
-            raise ValueError("Dropdown 'values' must be a list or tuple, not a string.")
-        if not isinstance(values, (list, tuple)):
-            raise ValueError("Dropdown 'values' must be a list or tuple.")
+        if isinstance(options, str):
+            raise ValueError("Dropdown 'options' must be a list or tuple, not a string.")
+        if not isinstance(options, (list, tuple)):
+            raise ValueError("Dropdown 'options' must be a list or tuple.")
 
         # Convert to strings to ensure compatibility with underlying widget
-        values = [str(v) for v in values]
+        options = [str(v) for v in options]
 
         # If selected_value is provided, ensure it's in values (or handle nicely? Plan said raise error on setter)
         # For init, CTK usually defaults to first item if not set, or empty.
@@ -43,7 +43,7 @@ class Dropdown(GooeyPieWidget):
 
         super().__init__(**kwargs)
         
-        self._constructor_kwargs['values'] = values
+        self._constructor_kwargs['values'] = options
 
         # Wire up the command to our event system
         # CTkComboBox calls command with the selected value
@@ -174,9 +174,9 @@ class Dropdown(GooeyPieWidget):
     @selected.setter
     def selected(self, value):
         # Validation: value must be in current values
-        current_values = self.values
-        if value not in current_values:
-            raise ValueError(f"Value '{value}' is not in the current values list: {current_values}")
+        current_options = self.options
+        if value not in current_options:
+            raise ValueError(f"Value '{value}' is not in the current values list: {current_options}")
 
         if self._ctk_object:
             # If disabled, temporarily enable to set value
@@ -192,31 +192,47 @@ class Dropdown(GooeyPieWidget):
             self._initial_selected = value
 
     @property
-    def values(self):
+    def selected_index(self):
+        try:
+            return self.options.index(self.selected)
+        except ValueError:
+            return -1
+
+    @selected_index.setter
+    def selected_index(self, index):
+        if not isinstance(index, int):
+            raise TypeError("Dropdown 'selected_index' must be an integer.")
+        options = self.options
+        if index < 0 or index >= len(options):
+            raise IndexError(f"List index out of range. 'selected_index' must be between 0 and {len(options) - 1}.")
+        self.selected = options[index]
+
+    @property
+    def options(self):
         if self._ctk_object:
             return self._ctk_object.cget('values')
         return self._constructor_kwargs['values']
 
-    @values.setter
-    def values(self, new_values):
-        if isinstance(new_values, str):
-            raise ValueError("Dropdown 'values' must be a list or tuple, not a string.")
-        if not isinstance(new_values, (list, tuple)):
-             raise ValueError("Dropdown 'values' must be a list or tuple.")
+    @options.setter
+    def options(self, new_options):
+        if isinstance(new_options, str):
+            raise ValueError("Dropdown 'options' must be a list or tuple, not a string.")
+        if not isinstance(new_options, (list, tuple)):
+             raise ValueError("Dropdown 'options' must be a list or tuple.")
 
         # Convert to strings
-        new_values = [str(v) for v in new_values]
+        new_options = [str(v) for v in new_options]
 
         if self._ctk_object:
-            self._ctk_object.configure(values=new_values)
+            self._ctk_object.configure(values=new_options)
             # If current selection is not in new values, reset to first item
-            if self.selected not in new_values:
-                if new_values:
-                    self.selected = new_values[0]
+            if self.selected not in new_options:
+                if new_options:
+                    self.selected = new_options[0]
                 else:
                     self._ctk_object.set("") 
                     
-        self._constructor_kwargs['values'] = new_values
+        self._constructor_kwargs['values'] = new_options
 
     @property
     def disabled(self):

@@ -14,9 +14,11 @@ class Label(GooeyPieWidget):
         'padding_x',
         'padding_y',
         'text_color',
+        'text_disabled_color',
     )
 
     def __init__(self, text="", **kwargs):
+        kwargs.setdefault('text_color_disabled', ('gray74', 'gray60'))
         super().__init__(text=text, **kwargs)
     
     def _create_widget(self, master):
@@ -46,5 +48,7 @@ class Label(GooeyPieWidget):
             super()._set_property('padx', value)
         elif key == 'padding_y':
             super()._set_property('pady', value)
+        elif key == 'text_disabled_color':
+            super()._set_property('text_color_disabled', value)
         else:
             super()._set_property(key, value)

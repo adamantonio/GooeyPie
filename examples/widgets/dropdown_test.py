@@ -8,9 +8,9 @@ def selection(event):
 
 def update_dropdown(event):
     try:
-        secondary_dd.values = options[primary_dd.selected]
+        secondary_dd.options = options[primary_dd.selected]
     except KeyError:
-        secondary_dd.values = []
+        secondary_dd.options = []
 
 def update_state(event):
     selection_dd.disabled = not selection_chk.checked

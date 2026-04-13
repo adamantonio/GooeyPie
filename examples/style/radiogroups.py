@@ -1,7 +1,7 @@
 import gooeypie as gp
 
-app = gp.GooeyPieApp("Progressbar Styles")
-# app.theme = 'light'
+app = gp.GooeyPieApp("RadioGroup Styles")
+app.theme = 'light'
 
 # Header
 code_header = gp.Label("Code")
@@ -30,19 +30,25 @@ sizes = ['Small', 'Medium', 'Large']
 
 # Default
 default_radios = gp.RadioGroup(sizes)
-add_row(app, 'gp.RadioGroup(sizes)', default_radios)
+add_row(app, 'my_radios = gp.RadioGroup(sizes)', default_radios)
+
+# Disabled
+disabled_radios = gp.RadioGroup(sizes)
+disabled_radios.disabled = True
+add_row(app, 'my_radios.disabled = True', disabled_radios)
 
 # Styled
 styled_radios = gp.RadioGroup(sizes)
 styled_radios.style.checked_border_color = 'limegreen'
 styled_radios.style.checked_border_width = 8
 styled_radios.style.unchecked_border_color = 'firebrick'
+styled_radios.style.unchecked_border_width = 4
 styled_radios.style.hover_color = 'orange'
 styled_radios.style.text_color = 'dodgerblue'
 styled_radios.style.font_name = 'Serif'
 styled_radios.style.font_size = 18
 styled_radios.style.font_weight = 'bold'
 styled_radios.style.size = 30
-add_row(app, 'style.checked_border_color = "limegreen"\nstyle.checked_border_width = 8\nstyle.unchecked_border_color = "firebrick"\nstyle.hover_color = "orange"\nstyle.text_color = "dodgerblue"\nstyle.font_size = 18\nstyle.font_weight = "bold"\nstyle.size = 30', styled_radios)
+add_row(app, 'my_radios.style.checked_border_color = "limegreen"\nmy_radios.style.checked_border_width = 8\nmy_radios.style.unchecked_border_color = "firebrick"\nmy_radios.style.hover_color = "orange"\nmy_radios.style.text_color = "dodgerblue"\nmy_radios.style.font_size = 18\nmy_radios.style.font_weight = "bold"\nmy_radios.style.size = 30', styled_radios)
 
 app.run()

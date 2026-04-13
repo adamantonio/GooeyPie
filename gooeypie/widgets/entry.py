@@ -14,13 +14,13 @@ class Entry(GooeyPieWidget):
         'font_style', 
         'font_weight', 
         'justify', 
-        'placeholder_text_color', 
+        'placeholder_color', 
         'text_color'
     )
 
     def __init__(self, placeholder_text="", **kwargs):
         # Extract disabled text color if present, as it's not a valid CTk argument
-        self._disabled_text_color = kwargs.pop('text_color_disabled', None)
+        self._text_disabled_color = kwargs.pop('text_color_disabled', None)
         self._original_text_color = None
         
         super().__init__(placeholder_text=placeholder_text, **kwargs)
@@ -56,7 +56,7 @@ class Entry(GooeyPieWidget):
 
     def _set_property(self, key, value):
         if key == 'text_disabled_color' or key == 'text_color_disabled':
-            self._disabled_text_color = value
+            self._text_disabled_color = value
             self._update_text_color()
         elif key == 'text_color':
             self._original_text_color = value
@@ -74,7 +74,7 @@ class Entry(GooeyPieWidget):
     def _update_text_color(self):
         """Updates the text color based on the current state (disabled/normal)."""
         if self.disabled:
-            color = self._disabled_text_color
+            color = self._text_disabled_color
             if not color:
                 # Default to the captured default placeholder color
                 color = getattr(self, '_default_disabled_color', self._get_property('placeholder_text_color'))

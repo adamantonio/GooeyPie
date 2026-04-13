@@ -1,7 +1,7 @@
 import gooeypie as gp
 
 app = gp.GooeyPieApp("Label Styles")
-# app.theme = "light"
+app.theme = "light"
 
 # Header
 code_header = gp.Label("Code")
@@ -26,7 +26,18 @@ def add_row(app, code_text, widget, align_code="left", align_widget="center"):
     _next_row += 1
 
 # Row 2: Default
-add_row(app, 'gp.Label("Default Label")', gp.Label("Default Label"))
+add_row(app, 'my_label = gp.Label("Default Label")', gp.Label("Default Label"))
+
+# Disabled
+d_disabled = gp.Label("Disabled")
+d_disabled.disabled = True
+add_row(app, 'my_label.disabled = True', d_disabled)
+
+# Custom disabled color
+d_disabled = gp.Label("Disabled")
+d_disabled.disabled = True
+d_disabled.style.text_disabled_color = "IndianRed"
+add_row(app, 'my_label.disabled = True\nmy_label.style.text_disabled_color = "IndianRed"', d_disabled)
 
 # Row 3: Font Size
 l_size = gp.Label("Large Text")
@@ -61,19 +72,19 @@ l_bg.style.corner_radius = 10
 add_row(app, 'my_label.style.bg_color = "teal"\nmy_label.style.corner_radius = 10', l_bg)
 
 # Row 9: Justify
-l_just = gp.Label("This is a multiline\nlabel verified with\njustify='right'")
+l_just = gp.Label("This is a multiline\nlabel with\njustify='right'")
 l_just.style.justify = "right"
 add_row(app, 'my_label.style.justify = "right"', l_just)
 
 # Row 10: Padding and align
-l_pad = gp.Label("Padding Verified") # Spaces for padding effect
+l_pad = gp.Label("Padding") # Spaces for padding effect
 l_pad.style.bg_color = "teal"
 l_pad.style.text_color = "lightgrey"
-l_pad.style.padding_x = 50
+l_pad.style.padding_x = 5
 l_pad.style.padding_y = 50
 l_pad.width = 200
 l_pad.style.align = "left"
-add_row(app, 'my_label.style.padding_x = 50\nmy_label.style.padding_y = 50\nmy_label.style.align = "left"', l_pad)
+add_row(app, 'my_label.style.padding_x = 5\nmy_label.style.padding_y = 50\nmy_label.style.align = "left"', l_pad)
 
 # Configure columns
 app.set_column_weight(1, 1)

@@ -4,7 +4,7 @@ def dummy_event(event):
     print(f"Button '{event.widget.text}' pressed")
 
 app = gp.GooeyPieApp("Button Styles")
-# app.theme = "light"
+app.theme = "light"
 
 # Header
 code_header = gp.Label("Code")
@@ -40,9 +40,9 @@ add_row(app, 'my_button.disabled = True', default_disabled_btn)
 # Disabled text and button color
 disabled_color_btn = gp.Button("Disabled", dummy_event)
 disabled_color_btn.disabled = True
-disabled_color_btn.style.text_disabled_color = 'pink'
+disabled_color_btn.style.text_disabled_color = 'goldenrod'
 disabled_color_btn.style.button_disabled_color = 'darkred'
-add_row(app, "my_button.disabled = True\nmy_button.style.text_disabled_color = 'pink'\nmy_button.style.button_disabled_color = 'darkred'", disabled_color_btn)
+add_row(app, "my_button.disabled = True\nmy_button.style.text_disabled_color = 'goldenrod'\nmy_button.style.button_disabled_color = 'darkred'", disabled_color_btn)
 
 # Width and height
 width_height_btn = gp.Button("Wider and Taller", dummy_event)
@@ -51,7 +51,7 @@ width_height_btn.height = 50
 add_row(app, 'my_button.width = 200\nmy_button.height = 50', width_height_btn)
 
 # Button and text colour
-text_hover_btn = gp.Button("Crimson", dummy_event)
+text_hover_btn = gp.Button("Sky Blue", dummy_event)
 text_hover_btn.style.text_color = 'black'
 text_hover_btn.style.button_color = 'skyblue'
 text_hover_btn.style.button_hover_color = 'lightgreen'
@@ -66,10 +66,10 @@ add_row(app, 'my_button.style.corner_radius = 20', corner_radius_btn)
 border_btn = gp.Button("Bordered", dummy_event)
 border_btn.style.border_width = 5
 border_btn.style.border_color = "orange"
-add_row(app, 'my_button.style.border_width = 5 \n(and border_color or no effect)', border_btn)
+add_row(app, 'my_button.style.border_width = 5 \nmy_button.style.border_color = "orange"', border_btn)
 
 # Font
-font_btn = gp.Button("Big Text", dummy_event)
+font_btn = gp.Button("Thick Text", dummy_event)
 font_btn.style.font_size = 20
 font_btn.style.font_weight = "bold"
 font_btn.style.font_name = "Consolas", "monospace"

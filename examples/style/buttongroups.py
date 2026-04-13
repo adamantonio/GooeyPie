@@ -1,7 +1,7 @@
 import gooeypie as gp
 
 app = gp.GooeyPieApp("ButtonGroup Styles")
-# app.theme = "light"
+app.theme = "light"
 
 # Header
 code_header = gp.Label("Code")
@@ -30,34 +30,38 @@ options = ["One", "Two", "Three"]
 # Default
 bg_default = gp.ButtonGroup(options)
 bg_default.selected = "One"
-add_row(app, 'gp.ButtonGroup(options)', bg_default)
+add_row(app, 'my_group = gp.ButtonGroup(labels)', bg_default)
 
 # Default disabled
 bg_default_disabled = gp.ButtonGroup(options)
 bg_default_disabled.selected = "One"
 bg_default_disabled.disabled = True
-add_row(app, 'gp.ButtonGroup(options)\ndisabled = True', bg_default_disabled)
+add_row(app, 'my_group.disabled = True', bg_default_disabled)
+
+# Disabled colours
+bg_sel_disabled = gp.ButtonGroup(options)
+bg_sel_disabled.selected = "Two"
+bg_sel_disabled.style.text_disabled_color = "black"
+bg_sel_disabled.style.selected_disabled_color = "tomato"
+bg_sel_disabled.style.unselected_disabled_color = "lightcoral"
+bg_sel_disabled.disabled = True
+add_row(app, 'my_group.disabled = True\nmy_group.style.text_disabled_color = "black"\nmy_group.style.selected_disabled_color = "tomato"\nmy_group.style.unselected_disabled_color = "lightcoral"', bg_sel_disabled)
 
 # Width and height
 bg_wh = gp.ButtonGroup(options)
 bg_wh.selected = "One"
 bg_wh.width = 200
 bg_wh.height = 50
-add_row(app, 'width = 200\nheight = 50', bg_wh)
+add_row(app, 'my_group.width = 200\nmy_group.height = 50', bg_wh)
 
-# Selected Color
+# Selected and unselected colors
 bg_sel = gp.ButtonGroup(options)
 bg_sel.selected = "One"
-bg_sel.style.selected_color = "red"
-bg_sel.style.selected_hover_color = "darkred"
-add_row(app, 'style.selected_color = "red"\nstyle.selected_hover_color = "darkred"', bg_sel)
-
-# Unselected Color
-bg_unsel = gp.ButtonGroup(options)
-bg_unsel.selected = "Two"
-bg_unsel.style.unselected_color = "lightblue"
-bg_unsel.style.unselected_hover_color = "skyblue"
-add_row(app, 'style.unselected_color = "lightblue"\nstyle.unselected_hover_color = "skyblue"', bg_unsel)
+bg_sel.style.selected_color = "IndianRed"
+bg_sel.style.selected_hover_color = "FireBrick"
+bg_sel.style.unselected_color = "DarkOrange"
+bg_sel.style.unselected_hover_color = "Gray"
+add_row(app, 'my_group.style.selected_color = "IndianRed"\nmy_group.style.selected_hover_color = "FireBrick"\nmy_group.style.unselected_color = "DarkOrange"\nmy_group.style.unselected_hover_color = "Gray"', bg_sel)
 
 # Text Color
 bg_text = gp.ButtonGroup(options)
@@ -65,8 +69,8 @@ bg_text.selected = "Three"
 bg_text.style.font_name = "monospace"
 bg_text.style.font_weight = "bold"
 bg_text.style.font_size = 18
-bg_text.style.text_color = "purple", "magenta"
-add_row(app, 'style.font_name = "monospace"\nstyle.font_weight = "bold"\nstyle.font_size = 18\nstyle.text_color = "purple", "magenta"', bg_text)
+bg_text.style.text_color = "darkblue"
+add_row(app, 'my_group.style.font_name = "monospace"\nmy_group.style.font_weight = "bold"\nmy_group.style.font_size = 18\nmy_group.style.text_color = "darkblue"', bg_text)
 
 # Corner Radius, border Width and background color
 bg_style = gp.ButtonGroup(options)
@@ -74,28 +78,7 @@ bg_style.selected = "One"
 bg_style.style.corner_radius = 20
 bg_style.style.border_width = 5
 bg_style.style.bg_color = "orange"
-add_row(app, 'style.corner_radius = 20\nstyle.border_width = 5\nstyle.bg_color = "orange"', bg_style)
-
-# Disabled text color
-bg_disabled = gp.ButtonGroup(options)
-bg_disabled.selected = "One"
-bg_disabled.disabled = True
-bg_disabled.style.text_disabled_color = "yellow"
-add_row(app, 'disabled = True\nstyle.text_disabled_color = "yellow"', bg_disabled)
-
-# Selected disabled color
-bg_sel_disabled = gp.ButtonGroup(options)
-bg_sel_disabled.selected = "Two"
-bg_sel_disabled.style.selected_disabled_color = "tomato"
-bg_sel_disabled.disabled = True
-add_row(app, 'disabled = True\nstyle.selected_disabled_color = "tomato"', bg_sel_disabled)
-
-# Unselected disabled color
-bg_unsel_disabled = gp.ButtonGroup(options)
-bg_unsel_disabled.selected = "Two"
-bg_unsel_disabled.style.unselected_disabled_color = "lightcoral"
-bg_unsel_disabled.disabled = True
-add_row(app, 'disabled = True\nstyle.unselected_disabled_color = "lightcoral"', bg_unsel_disabled)
+add_row(app, 'my_group.style.corner_radius = 20\nmy_group.style.border_width = 5\nmy_group.style.bg_color = "orange"', bg_style)
 
 # Configure columns
 app.set_column_weight(1, 1)

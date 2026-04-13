@@ -2,6 +2,7 @@ from ..base import GooeyPieObject, WIDGET_PADDING
 from .widget import GooeyPieWidget
 from CTkListbox import CTkListbox
 import tkinter
+import contextlib
 
 class Listbox(GooeyPieWidget):
     _style_properties = (
@@ -17,6 +18,7 @@ class Listbox(GooeyPieWidget):
         'hover_color',
         'selected_color',
         'text_color',
+        'text_disabled_color',
         'unselected_color',
     )
 
@@ -28,6 +30,11 @@ class Listbox(GooeyPieWidget):
     def _set_property(self, key, value):
         if key == 'align':
             super()._set_property('justify', value)
+        elif key == 'text_disabled_color':
+            self._text_disabled_color = value
+            if self._ctk_object:
+                for btn in self._ctk_object.buttons.values():
+                    btn.configure(text_color_disabled=value)
         else:
             super()._set_property(key, value)
 
@@ -44,6 +51,9 @@ class Listbox(GooeyPieWidget):
         self._constructor_kwargs.setdefault('height', 200)
         self._constructor_kwargs.setdefault('width', 200)
         self._constructor_kwargs.setdefault('multiple_selection', False)
+        self._suppress_count = 0
+        self._disabled_state = False
+        self._text_disabled_color = ('gray74', 'gray60')
 
         # Initialize internal state from constructor kwargs
         self._height = self._constructor_kwargs['height']
@@ -63,23 +73,89 @@ class Listbox(GooeyPieWidget):
         if self._items:
             for item in self._items:
                 self._ctk_object.insert("END", item)
-        
-        # Bind events
-        # CTkListbox generates <<ListboxSelect>> internally when selection changes
-        # But we also used 'command' in init.
-        # Check CTkListbox: command is called in select/deselect.
-        # We can rely on command.
-        pass
+                
+        # Monkey-patch check_if_master_is_canvas to block scroll wheel events over the frame when disabled
+        original_check = self._ctk_object.check_if_master_is_canvas
+        def custom_check(widget):
+            if self._disabled_state:
+                return False
+            return original_check(widget)
+        self._ctk_object.check_if_master_is_canvas = custom_check
+
+        # Monkey-patch the scrollbar to prevent manual dragging and highlighting
+        if hasattr(self._ctk_object, '_scrollbar'):
+            scrollbar = self._ctk_object._scrollbar
+            
+            orig_clicked = scrollbar._clicked
+            def safe_clicked(event):
+                if not self._disabled_state:
+                    orig_clicked(event)
+            scrollbar._clicked = safe_clicked
+            
+            orig_mouse_scroll = scrollbar._mouse_scroll_event
+            def safe_mouse_scroll(event=None):
+                if not self._disabled_state:
+                    orig_mouse_scroll(event)
+            scrollbar._mouse_scroll_event = safe_mouse_scroll
+            
+            orig_on_enter = scrollbar._on_enter
+            def safe_on_enter(event=0):
+                if not self._disabled_state:
+                    orig_on_enter(event)
+            scrollbar._on_enter = safe_on_enter
+
+        # Apply delayed states
+        for btn in self._ctk_object.buttons.values():
+            btn.configure(text_color_disabled=self._text_disabled_color)
+            if self._disabled_state:
+                btn.configure(state='disabled')
 
     def _on_select_command(self, selected_value):
         """Callback from CTkListbox when selection changes."""
         self._handle_event('change')
+
+    @contextlib.contextmanager
+    def _suppress_events(self):
+        """Suppresses native selection events during programmatic selection changes and fires exactly one event at the end."""
+        if not self._ctk_object:
+            yield
+            return
+            
+        self._suppress_count += 1
+        
+        if self._suppress_count == 1:
+            self._ctk_object.configure(command=None)
+            if hasattr(self._ctk_object, 'command'):
+                self._ctk_object.command = None
+                
+        try:
+            yield
+        finally:
+            self._suppress_count -= 1
+            if self._suppress_count == 0:
+                self._ctk_object.configure(command=self._on_select_command)
+                if hasattr(self._ctk_object, 'command'):
+                    self._ctk_object.command = self._on_select_command
+                self._handle_event('change')
 
     def _refresh_items(self):
         """Clears and re-populates the listbox from self._items."""
         if not self._ctk_object:
             return
             
+        # Intercept and patch buttons before mass deletion to prevent CTkListbox TclError bug
+        try:
+            for btn in self._ctk_object.buttons.values():
+                orig = btn.configure
+                def safe_config(*args, orig_fn=orig, **kwargs):
+                    try:
+                        orig_fn(*args, **kwargs)
+                    except Exception:
+                        pass
+                btn.configure = safe_config
+        except Exception:
+            pass
+
         # Clear existing
         # CTkListbox delete("all") clears buttons and keys
         self._ctk_object.delete("all")
@@ -88,12 +164,11 @@ class Listbox(GooeyPieWidget):
         for item in self._items:
             self._ctk_object.insert("END", item)
             
-        # Restore disabled state to new buttons if needed
-        # CTkListbox doesn't propagate disabled state automatically on insert?
-        # We need to check if we are disabled and configure new buttons.
-        if self.disabled:
-             # Re-apply disabled state which should iterate buttons
-            self.disabled = True
+        # Re-apply our button states
+        for btn in self._ctk_object.buttons.values():
+            btn.configure(text_color_disabled=self._text_disabled_color)
+            if self._disabled_state:
+                btn.configure(state='disabled')
 
     @property
     def items(self):
@@ -168,31 +243,29 @@ class Listbox(GooeyPieWidget):
             # Assuming widget mostly exists. If not, it's ignored (limitation).
             return
 
-        self.select_none()
-        
-        if value is None:
-            return
+        with self._suppress_events():
+            self.select_none()
+            
+            if value is None:
+                return
 
-        if self._multiple_selection:
-            values_to_select = value if isinstance(value, (list, tuple)) else [value]
-            for v in values_to_select:
+            if self._multiple_selection:
+                values_to_select = value if isinstance(value, (list, tuple)) else [value]
+                for v in values_to_select:
+                    try:
+                        idx = self._items.index(v)
+                        self._ctk_object.select(idx)
+                    except ValueError:
+                        raise ValueError(f"Item '{v}' not found in Listbox")
+            else:
+                if isinstance(value, (list, tuple)):
+                    raise ValueError("Cannot select multiple items when multiple_selection is False")
+                
                 try:
-                    # Find index
-                    # Note: CTkListbox insert appends. Order in self._items matches display.
-                    # Duplicates? Listbox usually selects first found?
-                    idx = self._items.index(v)
+                    idx = self._items.index(value)
                     self._ctk_object.select(idx)
                 except ValueError:
-                    raise ValueError(f"Item '{v}' not found in Listbox")
-        else:
-            if isinstance(value, (list, tuple)):
-                raise ValueError("Cannot select multiple items when multiple_selection is False")
-            
-            try:
-                idx = self._items.index(value)
-                self._ctk_object.select(idx)
-            except ValueError:
-                raise ValueError(f"Item '{value}' not found in Listbox")
+                    raise ValueError(f"Item '{value}' not found in Listbox")
 
     @property
     def selected_index(self):
@@ -236,57 +309,65 @@ class Listbox(GooeyPieWidget):
                 # I'll assume index is int.
                 return
                 
-            self._ctk_object.select(index)
+            with self._suppress_events():
+                self._ctk_object.select(index)
 
     @property
     def disabled(self):
-        # We need to override because we might need to disable buttons individually?
-        # CTkListbox inherits CTkScrollableFrame. Disabling frame doesn't disable buttons usually.
-        # We need to check if CTkListbox handles it. configure() in CTkListbox calls super().configure().
-        # It doesn't seem to iterate buttons to disable them.
-        return self._get_property('state') == 'disabled'
+        return self._disabled_state
 
     @disabled.setter
     def disabled(self, value):
+        self._disabled_state = bool(value)
         state = 'disabled' if value else 'normal'
         if self._ctk_object:
-            self._ctk_object.configure(state=state) # Disables the frame/scrollbar
-            # Also disable all buttons
-            # Inspecting CTkListbox source: self.buttons is a dict.
             for btn in self._ctk_object.buttons.values():
                 btn.configure(state=state)
-                
-        self._constructor_kwargs['state'] = state
 
     # Methods
     def add_item(self, item):
         self._items.append(item)
         if self._ctk_object:
-            self._ctk_object.insert("END", item)
-            if self.disabled:
-                # Disable the new button (last one)
-                # Key is "END{end_num}". 
-                # Easier to just re-apply disabled to all or find last?
-                # Optimization: find last.
-                # But self.disabled setter loops all.
-                # Let's just re-apply disabled if true.
-                self.disabled = True
+            btn = self._ctk_object.insert("END", item)
+            # CTkListbox returns the button from insert
+            if btn:
+                btn.configure(text_color_disabled=self._text_disabled_color)
+                if self._disabled_state:
+                    btn.configure(state='disabled')
 
     def add_item_to_start(self, item):
         self._items.insert(0, item)
         self._refresh_items()
 
-    def add_item_at(self, index, item):
-        self._items.insert(index, item)
+    def add_item_at_index(self, item, index):
+        if index < 0 or index >= len(self._items):
+            self._items.append(item)
+        else:
+            self._items.insert(index, item)
         self._refresh_items()
 
-    def remove_item(self, index):
+    def remove_item_at_index(self, index):
         """Removes and returns the item at the given index."""
         if index < 0 or index >= len(self._items):
             raise IndexError("Listbox index out of range")
             
         item = self._items.pop(index)
         if self._ctk_object:
+            # We monkey-patch the button's configure method before deleting it 
+            # to swallow the _tkinter.TclError thrown by CTkListbox's scheduled hover reset callbacks
+            try:
+                key = list(self._ctk_object.buttons.keys())[index]
+                btn = self._ctk_object.buttons[key]
+                orig = btn.configure
+                def safe_config(*args, orig_fn=orig, **kwargs):
+                    try:
+                        orig_fn(*args, **kwargs)
+                    except Exception:
+                        pass
+                btn.configure = safe_config
+            except Exception:
+                pass
+            
             self._ctk_object.delete(index)
         return item
 
@@ -294,7 +375,7 @@ class Listbox(GooeyPieWidget):
         """Removes and returns any items currently selected."""
         # Get selected indices
         indices = self.selected_index
-        if not indices:
+        if indices is None or indices == []:
             return [] if self._multiple_selection else None
             
         if not isinstance(indices, list):
@@ -305,7 +386,7 @@ class Listbox(GooeyPieWidget):
         
         removed_items = []
         for idx in indices:
-            removed_items.append(self.remove_item(idx))
+            removed_items.append(self.remove_item_at_index(idx))
             
         # Return list if multiple, else item?
         # "Returns any items currently selected". Implies list or single item?
@@ -323,45 +404,18 @@ class Listbox(GooeyPieWidget):
             return removed_items[0] if removed_items else None
 
     def select_all(self):
-        if self._ctk_object:
-            # CTkListbox select("all") logic:
-            # Line 111: if index=="all": loop select all.
-            # Works for multiple=True.
-            # If multiple=False? Line 112 check self.multiple.
-            # If not multiple, select("all") does NOTHING in CTkListbox source (Line 112 indent).
-            # So we should check multiple.
-            # GooeyPie: select_all should probably work only if multiple?
-            # Or assume user knows what they are doing.
-            self._ctk_object.select("all")
+        if self._multiple_selection and self._ctk_object:
+            with self._suppress_events():
+                self._ctk_object.select("all")
 
     def select_none(self):
         if self._ctk_object:
-            # CTkListbox deactivate("all") deselects all?
-            # Line 213: deactivate("all").
-            # If multiple: deselects all.
-            # If single: deselects 0? Line 218: `self.deselect(0)`? Weird logic in CTkListbox.
-            # Line 217: `elif len(self.buttons): self.deselect(0)`.
-            # This only deselects the first item! That's a bug in CTkListbox or weird feature.
-            # If I want to clear selection in single mode:
-            # `self.deselect(self.selected_index)`?
-            # `deselect(index)` in CTkListbox:
-            # Line 203: if not multiple: if self.selected: deselect it.
-            # So calling `deselect` with ANY index (even invalid?) might work if it hits line 204.
-            # But line 208 `if index in self.buttons...` might be skipped.
-            # Let's try `deselect(0)` or just manually deselect.
-            
-            # Using `deselect("all")`?
-            # `deactivate` calls `deselect`.
-            # I'll rely on `_ctk_object.deselect("all")` if it exists (it doesn't, `deselect` takes index).
-            
-            if self._multiple_selection:
-                self._ctk_object.deactivate("all")
-            else:
-                # Single selection clear
-                # CTkListbox.deselect logic checks `if not self.multiple: if self.selected: ...`
-                # So just calling deselect(0) should trigger the first block?
-                # Yes.
-                self._ctk_object.deselect(0)
+            with self._suppress_events():
+                if self._multiple_selection:
+                    self._ctk_object.deactivate("all")
+                else:
+                    # Single selection clear
+                    self._ctk_object.deselect(0)
 
     def clear(self):
         self._items = []

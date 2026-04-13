@@ -70,7 +70,7 @@ class _CTkDatePicker(ctk.CTkFrame):
         self.popup.geometry("+%d+%d" % (self.winfo_rootx(), self.winfo_rooty() + self.winfo_height()))
         self.popup.resizable(False, False)
 
-        self.popup.after(200, lambda: self.popup.focus())
+        self.popup.after(100, lambda: self.popup.focus())
 
         self.current_year = datetime.now().year
         self.current_month = datetime.now().month
