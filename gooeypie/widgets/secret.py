@@ -7,30 +7,19 @@ _MASK_CHAR = '\u25cf'
 
 
 class Secret(Entry):
-    """An Entry widget that masks its content by default.
-
-    Characters are replaced with bullet dots (●) as the user types,
-    matching the appearance of password fields in web browsers.
-
-    Methods
-    -------
-    mask()
-        Hide all characters (default state).
-    unmask()
-        Reveal all characters so the widget behaves like a plain Entry.
-    toggle()
-        Switch between masked and unmasked states.
-    """
-
+    
     def __init__(self, placeholder_text='', **kwargs):
+        """
+        A secret widget that masks its content by default.
+
+        Args:
+            placeholder_text (str): Optional - The placeholder text for the entry.
+            **kwargs: Standard widget arguments.
+        """
         # Pass show='●' to CTkEntry so characters are masked from the start.
         kwargs['show'] = _MASK_CHAR
         super().__init__(placeholder_text=placeholder_text, **kwargs)
         self._masked = True
-
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
 
     def mask(self):
         """Hide all characters and replace with a large centred dot (●)."""
@@ -56,10 +45,6 @@ class Secret(Entry):
             self.unmask()
         else:
             self.mask()
-
-    # ------------------------------------------------------------------
-    # Read-only state property
-    # ------------------------------------------------------------------
 
     @property
     def masked(self):

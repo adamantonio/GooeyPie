@@ -83,8 +83,6 @@ class GooeyPieStyle:
                     return f
                 
                 # Some fonts might be passed that are valid but not in the set 
-                # (e.g. if set was empty due to no root). 
-                # If available is empty, we can't verify, so we might just assume first valid string.
                 # But typically we want to return the first match.
         
         # If available fonts was empty (no root), checking is impossible.

@@ -19,6 +19,14 @@ class Entry(GooeyPieWidget):
     )
 
     def __init__(self, placeholder_text="", **kwargs):
+        """
+        An entry widget.
+        
+        Args:
+            placeholder_text (str): Optional - The text to display in the entry when it is empty.
+            **kwargs: Additional arguments to pass to the entry.
+        """
+
         # Extract disabled text color if present, as it's not a valid CTk argument
         self._text_disabled_color = kwargs.pop('text_color_disabled', None)
         self._original_text_color = None
@@ -112,10 +120,6 @@ class Entry(GooeyPieWidget):
             if was_disabled:
                 self._ctk_object.configure(state='disabled')
         
-        # Initial text handling if not created yet is tricky with setters?
-        # GooeyPieWidget.__init__ calls setter? No, it passes kwargs.
-        # So we should be fine if we set _last_text.
-        
         if value != self._last_text:
             self._last_text = value
             self._handle_event('change')
@@ -136,8 +140,6 @@ class Entry(GooeyPieWidget):
 
     @disabled.setter
     def disabled(self, value):
-        # Update state using parent logic (duplicated here or via super setter if possible, 
-        # but straightforward to re-implement for clarity and to ensure hook)
         state = 'disabled' if value else 'normal'
         if self._ctk_object:
             self._ctk_object.configure(state=state)

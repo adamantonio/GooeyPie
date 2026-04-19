@@ -22,11 +22,6 @@ class Listbox(GooeyPieWidget):
         'unselected_color',
     )
 
-    """
-    A listbox widget that allows the user to select one or more items from a list.
-    Wraps CTkListbox.
-    """
-
     def _set_property(self, key, value):
         if key == 'align':
             super()._set_property('justify', value)
@@ -40,8 +35,12 @@ class Listbox(GooeyPieWidget):
 
     def __init__(self, items=None, **kwargs):
         """
-        :param items: Initial list of items.
-        :param kwargs: Additional arguments (height, width, multiple_selection, etc).
+        A listbox widget that allows the user to select one or more items from a list.
+        Wraps CTkListbox.
+
+        Args:
+            items (list): Initial list of items.
+            **kwargs: Additional arguments
         """
         super().__init__(**kwargs)
         
@@ -58,10 +57,6 @@ class Listbox(GooeyPieWidget):
         # Initialize internal state from constructor kwargs
         self._height = self._constructor_kwargs['height']
         self._multiple_selection = self._constructor_kwargs['multiple_selection']
-        
-        # We handle the items manually after creation to ensure correct state hooks
-        # But CTkListbox doesn't take items in init, strict sense? 
-        # It takes listvariable or we insert.
         
         # Hook command for change event
         self._constructor_kwargs['command'] = self._on_select_command
@@ -219,10 +214,8 @@ class Listbox(GooeyPieWidget):
             return None
             
         # CTkListbox.get() returns None, valid item string, or list of strings
-        val = self._ctk_object.get()
-        # If multiple, returns list. If single, returns item/None.
-        # User requirement: "Returns None if no option ... If multiple ... items will be returned in a list (even if only a single item is selected)"
-        
+        val = self._ctk_object.get()  # If multiple, returns list. If single, returns item/None.
+    
         if self._multiple_selection:
             # CTkListbox returns list for multiple=True
             if val is None:
@@ -236,11 +229,6 @@ class Listbox(GooeyPieWidget):
     @selected.setter
     def selected(self, value):
         if self._ctk_object is None:
-            # TODO: Store initial selection if widget not created?
-            # Current design relies on creating widget early.
-            # If not created, ignoring for now or storing?
-            # We don't have a way to store "pending selection" easily without complicating.
-            # Assuming widget mostly exists. If not, it's ignored (limitation).
             return
 
         with self._suppress_events():
@@ -271,42 +259,23 @@ class Listbox(GooeyPieWidget):
     def selected_index(self):
         if not self._ctk_object:
             return None
-            
-        # CTkListbox.curselection()
-        # Returns int index, or tuple of ints, or generator?
-        # CTkListbox src: returns iterator or index?
-        # Line 171: return tuple(indexes) (if multiple)
-        # Line 176: return index (int) (if single)
         
         sel = self._ctk_object.curselection()
         
         if self._multiple_selection:
             if isinstance(sel, int):
                 return [sel]
-            if sel is None: # CTkListbox might return None? src check needed. src doesn't seem to return None explicitly, maybe empty tuple?
-                # Line 164 index=0. Loops. if multiple, returns tuple(indexes). Empty tuple if none.
+            if sel is None:
                 return []
             return list(sel)
         else:
             # Single selection
-            # Line 174 loops. If found, returns index.
-            # If not found (loop finishes)? Returns None (default python return).
             return sel
 
     @selected_index.setter
     def selected_index(self, index):
         if self._ctk_object:
-            # "only one index can be specified and will add to any existing selection"
-            # So just select it.
             if index is None:
-                # Interpret as clear? Or do nothing?
-                # "Returns None if no item selected".
-                # Setter usually mirrors getter logic or standard set logic.
-                # If None passed, maybe we should maintain "None selected"?
-                # But requirement says "add to any existing".
-                # If I set None, maybe I should deselect all?
-                # User says "select_none()" method exists.
-                # I'll assume index is int.
                 return
                 
             with self._suppress_events():
@@ -388,17 +357,8 @@ class Listbox(GooeyPieWidget):
         for idx in indices:
             removed_items.append(self.remove_item_at_index(idx))
             
-        # Return list if multiple, else item?
-        # "Returns any items currently selected". Implies list or single item?
-        # "Returns None if no option... If multiple... list".
-        # Assume same return type as 'selected'.
         if self._multiple_selection:
-            return removed_items # Note: order will be reversed due to pop order? 
-            # User might expect original order.
-            # remove_item returns item.
-            # I popped from end.
-            # removed_items has [last_selected, ..., first_selected]
-            # Reverse it back.
+            # We popped from the end (reverse=True), so reverse the result to match original listbox order
             return removed_items[::-1]
         else:
             return removed_items[0] if removed_items else None

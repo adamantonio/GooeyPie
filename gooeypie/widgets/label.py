@@ -18,6 +18,13 @@ class Label(GooeyPieWidget):
     )
 
     def __init__(self, text="", **kwargs):
+        """
+        A label widget.
+
+        Args:
+            text (str): The text to display on the label.
+            **kwargs: Additional arguments for the widget.
+        """
         kwargs.setdefault('text_color_disabled', ('gray74', 'gray60'))
         super().__init__(text=text, **kwargs)
     

@@ -14,9 +14,16 @@ class Slider(GooeyPieWidget):
 
     _DEFAULT_BUTTON_DISABLED_COLOR = '#555555'
 
-    """A slider widget for selecting a value from a range."""
+    def __init__(self, min_value, max_value, initial_value=None, **kwargs):
+        """
+        A slider widget for selecting a value from a range.
 
-    def __init__(self, min_value, max_value, command=None, **kwargs):
+        Args:
+            min_value (int or float): The minimum value of the slider.
+            max_value (int or float): The maximum value of the slider.
+            initial_value (int or float): Optional - The initial value of the slider.
+            **kwargs: Standard widget arguments.
+        """
         # We handle min/max/increment differently than base kwargs
         self._min_value = min_value
         self._max_value = max_value
@@ -36,8 +43,12 @@ class Slider(GooeyPieWidget):
         self._saved_button_color = None
         
         self._constructor_kwargs['command'] = self._on_change_internal
-        self._current_value = min_value
-        self._last_reported_value = min_value
+        
+        if initial_value is None:
+            initial_value = min_value
+            
+        self._current_value = initial_value
+        self._last_reported_value = initial_value
 
     def _on_change_internal(self, v):
         new_val = self.value

@@ -28,6 +28,8 @@ class ButtonGroup(GooeyPieWidget):
 
     def __init__(self, options, **kwargs):
         """
+        A button group widget, where 2 or more buttons are grouped together
+        
         Args:
             options (list): A list of strings for the buttons.
             **kwargs: Standard widget arguments.

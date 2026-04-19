@@ -21,21 +21,20 @@ class Switch(GooeyPieWidget):
 
     _DEFAULT_BUTTON_DISABLED_COLOR = '#555555'
 
-    """A switch widget that can be toggled on and off."""
-    
-    def __init__(self, text="", value=False, command=None, **kwargs):
+    def __init__(self, text="", value=False, **kwargs):
+        """
+        A switch widget that can be toggled on and off.
+
+        Args:
+            text (str): Optional - The text to display on the switch.
+            value (bool): Optional - The initial value of the switch.
+            **kwargs: Standard widget arguments.
+        """
         super().__init__(text=text, **kwargs)
         self._button_disabled_color = None
         self._saved_button_color = None
         
         # Set the command to dispatch our 'change' event
-        # If a command was passed, we wrap it?
-        # Standard pattern in GooeyPie is to emit events. 
-        # The user can bind 'change' event.
-        # But we also want to support 'command' arg if passed? 
-        # Base Widget doesn't standardly handle 'command' for all widgets, but button/checkbox etc do.
-        # Let's ensure our internal handler fires 'change'.
-        
         self._constructor_kwargs['command'] = lambda: self._handle_event('change')
 
         # Handle initial value

@@ -4,7 +4,6 @@ from .widget import GooeyPieWidget
 
 
 class Textbox(GooeyPieWidget):
-    """A multi-line text input widget."""
     _style_properties = (
         'bg_color',
         'border_color',
@@ -19,6 +18,13 @@ class Textbox(GooeyPieWidget):
     )
 
     def __init__(self, text="", **kwargs):
+        """
+        A multi-line text input widget.
+
+        Args:
+            text (str): Optional - The initial text to display in the textbox.
+            **kwargs: Standard widget arguments.
+        """
         self._text_disabled_color = kwargs.pop('text_color_disabled', None)
         self._original_text_color = None
         self._default_disabled_color = ["gray60", "gray40"]  # Lighter text for disabled state
@@ -96,8 +102,6 @@ class Textbox(GooeyPieWidget):
             if was_disabled:
                 self._ctk_object.configure(state='disabled')
 
-    # --- text property ---
-
     @property
     def text(self):
         if self._ctk_object:
@@ -113,8 +117,6 @@ class Textbox(GooeyPieWidget):
         else:
             self._initial_text = value
 
-    # --- disabled property ---
-
     @property
     def disabled(self):
         # CTkTextbox does not support cget('state') directly, so track via constructor kwargs
@@ -128,8 +130,6 @@ class Textbox(GooeyPieWidget):
         self._constructor_kwargs['state'] = state
         self._update_text_color()
 
-    # --- scrollbar property ---
-
     @property
     def scrollbar(self):
         return self._constructor_kwargs.get('activate_scrollbars', True)
@@ -137,8 +137,6 @@ class Textbox(GooeyPieWidget):
     @scrollbar.setter
     def scrollbar(self, value):
         self._constructor_kwargs['activate_scrollbars'] = bool(value)
-
-    # --- Methods ---
 
     def append(self, text):
         """Adds the string text to the end of the Textbox."""

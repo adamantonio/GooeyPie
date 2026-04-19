@@ -39,9 +39,7 @@ class GooeyPieContainer(GooeyPieObject):
             self._num_rows = max(self._num_rows, y + row_span - 1)
             return
 
-        # Create the widget if it hasn't been created, using the target master
-        # Note: If it WAS created (e.g. reparenting), we might have an issue 
-        # as CTk widgets are hard to reparent. Assuming fresh widgets for now.
+        # Create the widget if it hasn't been created
         if widget._ctk_object is None:
             widget._create_widget(target_master)
             widget._apply_pending_properties()
@@ -146,7 +144,6 @@ class GooeyPieContainer(GooeyPieObject):
 
 
 class Frame(GooeyPieContainer, GooeyPieWidget):
-    """A container that is also a widget."""
     _style_properties = (
         'bg_color',
         'border_color',
@@ -154,6 +151,12 @@ class Frame(GooeyPieContainer, GooeyPieWidget):
     )
 
     def __init__(self, **kwargs):
+        """
+        A container that is also a widget.
+
+        Args:
+            **kwargs: Standard widget arguments.
+        """
         GooeyPieContainer.__init__(self)
         GooeyPieWidget.__init__(self, **kwargs)
 
@@ -169,7 +172,6 @@ class Frame(GooeyPieContainer, GooeyPieWidget):
 
 
 class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
-    """A scrollable container that is also a widget."""
     _style_properties = (
         'bg_color',
         'border_color',
@@ -177,6 +179,12 @@ class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
     )
 
     def __init__(self, **kwargs):
+        """
+        A scrollable container that is also a widget.
+
+        Args:
+            **kwargs: Standard widget arguments.
+        """
         GooeyPieContainer.__init__(self)
         GooeyPieWidget.__init__(self, **kwargs)
         self._max_column = 0
@@ -209,7 +217,7 @@ class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
             
         super().add(widget, x, y, **kwargs)
         
-        # Update column weights as requested: last column gets weight 1, others 0
+        # Update column weights
         if x > self._max_column:
             self._max_column = x
             
@@ -220,8 +228,6 @@ class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
 
 
 class Container(GooeyPieContainer, GooeyPieWidget):
-    """A minimal, invisible container for layout grouping."""
-    
     _style_properties = (
         'bg_color',
         'border_color',
@@ -231,6 +237,12 @@ class Container(GooeyPieContainer, GooeyPieWidget):
     _default_grid_padding = 0
 
     def __init__(self, **kwargs):
+        """
+        A minimal, invisible container for layout grouping.
+
+        Args:
+            **kwargs: Standard widget arguments.
+        """
         GooeyPieContainer.__init__(self)
         GooeyPieWidget.__init__(self, **kwargs)
 

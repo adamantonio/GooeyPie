@@ -7,13 +7,22 @@ from .button import Button
 
 class ImageButton(Button):
 
-    def __init__(self, image_path, event_function, text="", **kwargs):
+    def __init__(self, image_path, event_function, button_text="", **kwargs):
+        """
+        An image button.
+        
+        Args:
+            image_path (str): The path to the image.
+            event_function (function): The function to call when the button is clicked.
+            button_text (str): Optional - The text to display on the button.
+            **kwargs: Additional arguments to pass to the button.
+        """
         self._image_path = image_path
         self._ctk_image = self._load_image(image_path)
 
         # Initialize Button (which handles command wrapping)
         # We pass empty text initially if user didn't provide any, but CTkButton can handle both text and image
-        super().__init__(text=text, event_function=event_function, **kwargs)
+        super().__init__(text=button_text, event_function=event_function, **kwargs)
         
         # Add image to constructor args for when _create_widget is called
         if self._ctk_image:
@@ -32,7 +41,7 @@ class ImageButton(Button):
                     from svglib.svglib import svg2rlg
                     from reportlab.graphics import renderPM
                 except ImportError:
-                    print(f"Error: SVG support requires extra dependencies. Install with 'pip install gooeypie[svg]'")
+                    print(f"Error: SVG support requires extra dependencies. Install with 'python -m pip install gooeypie[svg]'")
                     return None
 
                 # Convert SVG to ReportLab drawing
@@ -85,6 +94,4 @@ class ImageButton(Button):
 
     def _create_widget(self, master):
         # We override this just to ensure our ctk_image persists in the kwargs used by the parent class's logic
-        # But actually parent class `Button` uses `_constructor_kwargs` too.
-        # So we can just allow the parent to create the Tk widget using the props we injected above.
         super()._create_widget(master)

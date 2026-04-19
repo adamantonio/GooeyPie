@@ -24,6 +24,14 @@ class Button(GooeyPieWidget):
     _DEFAULT_TEXT_DISABLED_COLOR = '#e0e0e0'
 
     def __init__(self, text, event_function, **kwargs):
+        """
+        Button widget
+
+        Args:
+            text (str): The text on the button
+            event_function (function): The function to call when the button is clicked
+            **kwargs: Additional arguments for the widget
+        """
         if event_function is not None and not callable(event_function):
             raise TypeError(
                 f"The event_function must be a function, but received {type(event_function).__name__}. "

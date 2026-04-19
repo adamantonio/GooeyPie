@@ -10,6 +10,8 @@ class Image(GooeyPieWidget):
 
     def __init__(self, image_path, **kwargs):
         """
+        An image widget.
+
         Args:
             image_path (str): Path to the image file (relative to script or absolute).
             **kwargs: Standard widget arguments.
@@ -68,14 +70,10 @@ class Image(GooeyPieWidget):
         
         # Update the widget if it exists
         if self._ctk_object:
-            # If load failed, _ctk_image is None. 
-            # CTkLabel image update needs a CTkImage or valid image object (or None to remove?)
-            # Usually we keep the old one or show empty if failed? 
-            # Impl implies we clear if failed or show nothing.
             if self._ctk_image:
                 self._ctk_object.configure(image=self._ctk_image)
             else:
-                # If image load fails, maybe clear the image from the label?
+                # If image load fails, clear the image from the label
                 self._ctk_object.configure(image=None)
         
         # Update constructor args for potential recreation

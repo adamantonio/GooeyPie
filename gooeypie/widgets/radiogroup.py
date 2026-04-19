@@ -95,10 +95,12 @@ class RadioGroup(GooeyPieWidget):
 
     def __init__(self, options, orientation='vertical', selected=None, **kwargs):
         """
+        A group of radio buttons that allows the user to select one option from a list.
+
         Args:
             options (list): A list of strings for the radio buttons.
-            orientation (str): 'vertical' (default) or 'horizontal'.
-            selected (str, optional): The initially selected option.
+            orientation (str): Optional - 'vertical' (default) or 'horizontal'.
+            selected (str): Optional - The initially selected option.
             **kwargs: Standard widget arguments.
         """
         super().__init__(**kwargs)
@@ -191,7 +193,7 @@ class RadioGroup(GooeyPieWidget):
     @selected_index.setter
     def selected_index(self, index):
         if index is None:
-            # Maybe clear selection? CtkRadiobutton group always needs a value or empty string.
+            # CtkRadiobutton group always needs a value or empty string.
             self.selected = ""
             return
             

@@ -9,12 +9,16 @@ class Progressbar(GooeyPieWidget):
         'corner_radius', 
         'progress_color'
     )
-
-    """A progressbar widget to show the loading status for long running operations."""
     
-    def __init__(self, container, mode="determinate", **kwargs):
+    def __init__(self, mode="determinate", **kwargs):
+        """A progressbar widget to show the loading status for long running operations.
+        
+        Args:
+            mode (str): Optional - The mode of the progressbar. Can be "determinate" (default) or "indeterminate".
+            **kwargs: Standard widget arguments.
+        
+        """
         super().__init__(**kwargs)
-        self._container = container
         self._constructor_kwargs['mode'] = mode
         self._constructor_kwargs['width'] = kwargs.get('width', 200) # Default width
         

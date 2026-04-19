@@ -18,12 +18,14 @@ class Dropdown(GooeyPieWidget):
         'text_color', 
     )
 
-
     def __init__(self, options=None, selected_value=None, **kwargs):
         """
-        :param options: A list or tuple of string values to populate the dropdown.
-        :param selected_value: The initially selected value (optional).
-        :param kwargs: Additional arguments for the widget.
+        A dropdown widget.
+        
+        Args:
+            options (list): A list or tuple of string values to populate the dropdown.
+            selected_value (str): Optional - The initially selected value.
+            **kwargs: Additional arguments for the widget.
         """
         if options is None:
             options = []
@@ -37,15 +39,10 @@ class Dropdown(GooeyPieWidget):
         # Convert to strings to ensure compatibility with underlying widget
         options = [str(v) for v in options]
 
-        # If selected_value is provided, ensure it's in values (or handle nicely? Plan said raise error on setter)
-        # For init, CTK usually defaults to first item if not set, or empty.
-        # We will handle the initial selection event/logic.
-
         super().__init__(**kwargs)
         
         self._constructor_kwargs['values'] = options
 
-        # Wire up the command to our event system
         # CTkComboBox calls command with the selected value
         self._constructor_kwargs['command'] = self._on_change
 
@@ -106,7 +103,7 @@ class Dropdown(GooeyPieWidget):
         if self.disabled:
             return
 
-        # 1. Apply Button Hover Color
+        # Apply Button Hover Color
         try:
             btn_hover = self._ctk_object.cget('button_hover_color')
             if btn_hover:
@@ -119,7 +116,7 @@ class Dropdown(GooeyPieWidget):
         except Exception:
             pass
 
-        # 2. Apply Background (FG) Hover Color
+        # Apply Background (FG) Hover Color
         if hasattr(self, '_hover_color'):
              if not hasattr(self, '_temp_fg_color'):
                 self._temp_fg_color = self._ctk_object.cget('fg_color')
