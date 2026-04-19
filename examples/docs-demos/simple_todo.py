@@ -12,6 +12,7 @@ def remove_task(event):
 
 
 app = gp.GooeyPieApp("Simple To-Do List")
+# app.theme = 'light'
 
 # Create widgets
 instruction_lbl = gp.Label("Enter a task and press Enter to add it to the list.\nDouble-click a task to remove it.")

@@ -9,7 +9,7 @@ def media_control(event):
         status_lbl.text = "Starting shuffle..."
 
 app = gp.GooeyPieApp("Media Player")
-# app.theme = 'light'
+app.theme = 'light'
 
 # Create widgets
 play_btn = gp.ImageButton("play.png", media_control)

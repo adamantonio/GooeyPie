@@ -1,6 +1,7 @@
 import gooeypie as gp
 
 app = gp.GooeyPieApp("Metric conversion")
+# app.theme = 'light'
 
 def convert(event):
     try:

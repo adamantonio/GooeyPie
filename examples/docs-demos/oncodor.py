@@ -1,7 +1,9 @@
 import gooeypie as gp
 
 app = gp.GooeyPieApp("The Oncodor")
-app.width = 300
+app.theme = 'light'
+app.width = 700
+app.height = 600
 
 def oncodo(event):
     """Oncodo the message text by replacing all vowels with 'o'."""

@@ -13,6 +13,7 @@ def select_all(event):
 toppings = ["Pepperoni", "Mushrooms", "Extra Cheese", "Onions", "Ham", "Olives", "Pineapple", "Spinach", "Bacon"]
 
 app = gp.GooeyPieApp("Pizza Order")
+# app.theme = 'light'
 app.height = 400
 
 # Create toppings listbox and allow multiple selection

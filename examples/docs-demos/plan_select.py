@@ -11,7 +11,9 @@ def display_minimum_spend(event):
         result_label.text = "Minimum spend: $350"
 
 app = gp.GooeyPieApp("Plan Selector")
-app.width = 250
+# app.theme = 'light'
+app.width = 500
+app.height = 550
 
 # Plan selection label and radio buttons
 plan_label = gp.Label("Select your plan:")

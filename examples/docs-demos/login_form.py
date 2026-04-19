@@ -7,7 +7,7 @@ def check_login(event):
         status_label.text = '❌ Access denied!'
 
 app = gp.GooeyPieApp('Login')
-
+app.theme = 'light'
 user_label = gp.Label("Username")
 user_entry = gp.Entry()
 pass_label = gp.Label("Password")

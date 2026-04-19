@@ -8,10 +8,11 @@ def toggle_theme(event):
         app.theme = "light"
 
 app = gp.GooeyPieApp("Theme Switch")
+app.theme = 'light'
 
 # Create the frame and weather status image and text
 weather_frame = gp.Frame()
-weather_img = gp.Image("mostly-sunny.png")  # https://www.iconarchive.com/
+weather_img = gp.Image("mostly-sunny.png")
 weather_lbl = gp.Label("Mostly Sunny")
 weather_lbl.style.font_size = 16
 

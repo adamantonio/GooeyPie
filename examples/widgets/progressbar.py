@@ -25,7 +25,7 @@ app.width = 500
 lbl_det = gp.Label("Determinate Mode")
 app.add(lbl_det, 1, 1)
 
-prog = gp.Progressbar(app, mode='determinate')
+prog = gp.Progressbar(mode='determinate')
 prog.value = 50
 app.add(prog, 1, 2)
 
@@ -41,7 +41,7 @@ app.add(slider, 1, 4)
 lbl_ind = gp.Label("Indeterminate Mode")
 app.add(lbl_ind, 1, 5, pady=(20, 5))
 
-prog_ind = gp.Progressbar(app, mode='indeterminate')
+prog_ind = gp.Progressbar(mode='indeterminate')
 app.add(prog_ind, 1, 6)
 
 btn_start = gp.Button("Start", start_indeterminate)

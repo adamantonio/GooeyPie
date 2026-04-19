@@ -4,7 +4,9 @@ def toggle_secret(event):
     secret_entry.toggle()
 
 app = gp.GooeyPieApp('Secret')
-app.width = 300
+app.width = 800
+app.height = 320
+# app.theme = 'light'
 
 # Create widgets
 question_lbl = gp.Label("What's your secret?")

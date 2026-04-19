@@ -8,6 +8,7 @@ def update_greeting(event):
         greeting_lbl.text = "Hello, friend!"
 
 app = gp.GooeyPieApp("Hello, You!")
+app.theme = 'light'
 
 # Create widgets
 question_lbl = gp.Label("What's your name?")

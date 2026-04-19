@@ -1,7 +1,9 @@
 import gooeypie as gp
 
 app = gp.GooeyPieApp("License Viewer")
-app.width = 300
+# app.theme = 'light'
+app.width = 600
+app.height = 600
 
 # Read the license file
 with open("license.txt", "r") as f:

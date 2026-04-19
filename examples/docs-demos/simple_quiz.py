@@ -9,6 +9,7 @@ def check_answer(event):
 
 
 app = gp.GooeyPieApp("Quiz time!")
+# app.theme = 'light'
 
 # Create question label and checkboxes
 question_label = gp.Label("Which of the following are programming languages?")

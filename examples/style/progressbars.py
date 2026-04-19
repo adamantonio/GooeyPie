@@ -26,37 +26,37 @@ def add_row(app, code_text, widget, align_code="left", align_widget="center"):
     _next_row += 1
 
 # Default
-pb_default = gp.Progressbar(app)
+pb_default = gp.Progressbar()
 pb_default.value = 50
-add_row(app, 'gp.Progressbar(app)', pb_default)
+add_row(app, 'gp.Progressbar()', pb_default)
 
 # Custom Width
-pb_width = gp.Progressbar(app)
+pb_width = gp.Progressbar()
 pb_width.value = 60
 pb_width.width = 300
 add_row(app, 'width = 300', pb_width)
 
 # Custom Height
-pb_height = gp.Progressbar(app)
+pb_height = gp.Progressbar()
 pb_height.value = 60
 pb_height.height = 30
 add_row(app, 'height = 30', pb_height)
 
 # Progress Color
-pb_color = gp.Progressbar(app)
+pb_color = gp.Progressbar()
 pb_color.value = 70
 pb_color.style.progress_color = "orange"
 add_row(app, 'style.progress_color = "orange"', pb_color)
 
 # Track (Trough) Color
-pb_bg = gp.Progressbar(app)
+pb_bg = gp.Progressbar()
 pb_bg.value = 40
 pb_bg.style.progress_color = "purple"
 pb_bg.style.track_color = "lightgrey"
 add_row(app, 'style.progress_color = "purple"\nstyle.track_color = "lightgrey"', pb_bg)
 
 # Border
-pb_border = gp.Progressbar(app)
+pb_border = gp.Progressbar()
 pb_border.value = 30
 pb_border.style.border_width = 2
 pb_border.style.border_color = "red"
@@ -64,7 +64,7 @@ pb_border.style.progress_color = "red"
 add_row(app, 'style.border_width = 2\nstyle.border_color = "red"', pb_border)
 
 # Corner Radius (Round)
-pb_round = gp.Progressbar(app)
+pb_round = gp.Progressbar()
 pb_round.value = 80
 pb_round.width = 250
 pb_round.style.corner_radius = 10  # Less rounded (default is approx height/2)
@@ -72,7 +72,7 @@ pb_round.style.corner_radius = 10  # Less rounded (default is approx height/2)
 add_row(app, 'style.corner_radius = 10', pb_round)
 
 # Square edges
-pb_square = gp.Progressbar(app)
+pb_square = gp.Progressbar()
 pb_square.value = 50
 pb_square.style.corner_radius = 0
 add_row(app, 'style.corner_radius = 0', pb_square)

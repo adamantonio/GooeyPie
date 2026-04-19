@@ -9,8 +9,9 @@ def light_switch_changed(event):
 
 
 app = gp.GooeyPieApp("Light Switcher")
-app.width = 300
-# app.theme = "light"
+app.width = 500
+app.height = 800
+app.theme = "light"
 
 # Create image widget
 light_img = gp.Image("light-off.png")
