@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gooeypie"
-version = "0.1.0"
+version = "0.14.0"
 requires-python = ">=3.10"
-description = "A wrapper around customtkinter"
+description = "A modern Python GUI library designed for beginners."
 dependencies = [
     "ctklistbox>=1.5",
     "customtkinter",
@@ -15,10 +15,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-svg = [
-    "svglib>=1.6.0",
-    "reportlab>=4.4.7",
-]
+svg = ["svglib>=1.6.0", "reportlab>=4.4.7"]
 
-[tool.setuptools]
-packages = ["gooeypie"]
+[tool.setuptools.packages.find]
+include = ["gooeypie*"]
+exclude = ["examples*", "tests*"]
+
+[project.urls]
+Documentation = "https://gooeypie.dev"
+Repository = "https://github.com/adamantonio/gooeypie"
