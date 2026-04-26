@@ -32,6 +32,9 @@ class Checkbox(GooeyPieWidget):
         super().__init__(text=text, **kwargs)
         self._checkbox_disabled_color = None
         self._saved_checkbox_color = None
+        # Guard: True while the disabled setter is internally writing the disabled colour,
+        # so _set_property won't re-route that write to _saved_checkbox_color.
+        self._applying_disabled_color = False
         
         # Set the command to dispatch our 'change' event
         self._constructor_kwargs['command'] = lambda: self._handle_event('change')
@@ -44,6 +47,21 @@ class Checkbox(GooeyPieWidget):
             self._constructor_kwargs['width'] = 24
 
         self._initial_checked = checked
+
+    def _set_property(self, key, value):
+        """Override to intercept external fg_color changes while disabled."""
+        if key == 'fg_color' and self.disabled and not self._applying_disabled_color:
+            # An external caller (e.g. style.checkbox_color) is setting the colour
+            # while the checkbox is disabled.  Store it to restore on re-enable.
+            self._saved_checkbox_color = value
+            return
+        super()._set_property(key, value)
+
+    def _apply_disabled_color(self, color):
+        """Applies a disabled colour directly, bypassing the _set_property intercept."""
+        self._applying_disabled_color = True
+        self._set_property('fg_color', color)
+        self._applying_disabled_color = False
 
     def _create_widget(self, master):
         self._ctk_object = ctk.CTkCheckBox(master, **self._constructor_kwargs)
@@ -63,9 +81,13 @@ class Checkbox(GooeyPieWidget):
 
         # Swap checkbox color for the disabled variant
         if value:
-            self._saved_checkbox_color = self._get_property('fg_color')
+            saved = self._get_property('fg_color')
+            if saved is None:
+                # Widget not yet created — fall back to the CTk theme default
+                saved = ctk.ThemeManager.theme['CTkCheckBox']['fg_color']
+            self._saved_checkbox_color = saved
             disabled_color = self._checkbox_disabled_color or self._DEFAULT_CHECKBOX_DISABLED_COLOR
-            self._set_property('fg_color', disabled_color)
+            self._apply_disabled_color(disabled_color)
         else:
             if self._saved_checkbox_color is not None:
                 self._set_property('fg_color', self._saved_checkbox_color)

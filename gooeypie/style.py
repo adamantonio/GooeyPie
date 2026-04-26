@@ -333,10 +333,13 @@ class GooeyPieStyle:
     @button_disabled_color.setter
     def button_disabled_color(self, v):
         self._widget._button_disabled_color = v
-        # If currently disabled, apply immediately
+        # If currently disabled, apply the new disabled colour immediately.
+        # For Button/ImageButton we call _apply_disabled_color() which uses the
+        # _applying_disabled_color guard, preventing _set_property from treating
+        # this as an external enabled-colour write.
         if self._widget.disabled:
             if self._widget.__class__.__name__ in ('Button', 'ImageButton'):
-                self._set('fg_color', v)
+                self._widget._apply_disabled_color(v)
             else:
                 self._set('button_color', v)
 
@@ -355,9 +358,10 @@ class GooeyPieStyle:
     @checkbox_disabled_color.setter
     def checkbox_disabled_color(self, v):
         self._widget._checkbox_disabled_color = v
-        # If currently disabled, apply immediately
+        # If currently disabled, apply the new disabled colour immediately via the
+        # guarded helper so _set_property doesn't intercept it as an external write.
         if self._widget.disabled:
-            self._set('fg_color', v)
+            self._widget._apply_disabled_color(v)
 
     @property
     def checkbox_hover_color(self):
@@ -481,9 +485,9 @@ class GooeyPieStyle:
     @selected_disabled_color.setter
     def selected_disabled_color(self, v):
         self._widget._selected_disabled_color = v
-        # If currently disabled, apply immediately
+        # If currently disabled, apply via guarded helper.
         if self._widget.disabled:
-            self._set('selected_color', v)
+            self._widget._apply_disabled_color(selected_color=v)
 
     @property
     def unselected_disabled_color(self):
@@ -492,9 +496,9 @@ class GooeyPieStyle:
     @unselected_disabled_color.setter
     def unselected_disabled_color(self, v):
         self._widget._unselected_disabled_color = v
-        # If currently disabled, apply immediately
+        # If currently disabled, apply via guarded helper.
         if self._widget.disabled:
-            self._set('unselected_color', v)
+            self._widget._apply_disabled_color(unselected_color=v)
 
     @property
     def unselected_color(self): 

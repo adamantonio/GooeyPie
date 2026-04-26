@@ -47,6 +47,29 @@ class ButtonGroup(GooeyPieWidget):
         self._saved_unselected_color = None
         self._saved_text_disabled_color = None
         self._has_custom_text_disabled_color = False
+        # Guard: True while the disabled setter is internally writing disabled colours,
+        # so _set_property won't re-route those writes to the saved colour fields.
+        self._applying_disabled_color = False
+
+    def _set_property(self, key, value):
+        """Override to intercept external selected/unselected_color changes while disabled."""
+        if self.disabled and not self._applying_disabled_color:
+            if key == 'selected_color':
+                self._saved_selected_color = value
+                return
+            if key == 'unselected_color':
+                self._saved_unselected_color = value
+                return
+        super()._set_property(key, value)
+
+    def _apply_disabled_color(self, selected_color=None, unselected_color=None):
+        """Applies disabled colours directly, bypassing the _set_property intercept."""
+        self._applying_disabled_color = True
+        if selected_color is not None:
+            self._set_property('selected_color', selected_color)
+        if unselected_color is not None:
+            self._set_property('unselected_color', unselected_color)
+        self._applying_disabled_color = False
 
     def _create_widget(self, master):
         self._variable = ctk.StringVar(value=self._initial_selected if self._initial_selected else "")
@@ -77,13 +100,20 @@ class ButtonGroup(GooeyPieWidget):
 
         # Swap selected_color for the disabled variant
         if value:
-            self._saved_selected_color = self._get_property('selected_color')
+            saved_sel = self._get_property('selected_color')
+            if saved_sel is None:
+                saved_sel = ctk.ThemeManager.theme['CTkSegmentedButton']['selected_color']
+            self._saved_selected_color = saved_sel
+
             disabled_color = self._selected_disabled_color or self._DEFAULT_SELECTED_DISABLED_COLOR
-            self._set_property('selected_color', disabled_color)
+            self._apply_disabled_color(selected_color=disabled_color)
 
             if self._unselected_disabled_color:
-                self._saved_unselected_color = self._get_property('unselected_color')
-                self._set_property('unselected_color', self._unselected_disabled_color)
+                saved_unsel = self._get_property('unselected_color')
+                if saved_unsel is None:
+                    saved_unsel = ctk.ThemeManager.theme['CTkSegmentedButton']['unselected_color']
+                self._saved_unselected_color = saved_unsel
+                self._apply_disabled_color(unselected_color=self._unselected_disabled_color)
 
             if not self._has_custom_text_disabled_color:
                 # CTkSegmentedButton uses text_color_disabled (not text_color) for disabled labels
