@@ -19,24 +19,57 @@ class GooeyPieContainer(GooeyPieObject):
         """Returns the widget that acts as the parent for the grid (geometry master)."""
         return self._grid_master or self._ctk_object
 
-    def add(self, widget, x, y, row_span=1, column_span=1, expand_horizontal=False, expand_vertical=False, align_horizontal="center", align_vertical="center", **kwargs):
-        """Adds a widget to this container at grid position (x, y)."""
+    def add(self, widget, column, row, row_span=1, column_span=1, expand_horizontal=False, expand_vertical=False, align_horizontal="center", align_vertical="center", **kwargs):
+        """Adds a widget to this container at grid position (column, row)."""
         if not isinstance(widget, GooeyPieWidget):
-            raise ValueError("Can only add GooeyPieWidget instances.")
-        
+            raise ValueError(f"Can only add GooeyPieWidgets to a window or container. Received {type(widget).__name__}.")
+
+        if column == 0:
+            raise ValueError("Columns start at 1, not 0. Use column = 1 for the first column.")
+        if row == 0:
+            raise ValueError("Rows start at 1, not 0. Use row = 1 for the first row.")
+
+        # Silently accept "middle" as an alias for "center"
+        if align_horizontal == "middle":
+            align_horizontal = "center"
+        if align_vertical == "middle":
+            align_vertical = "center"
+
+        _valid_h = ("left", "center", "right")
+        _valid_v = ("top", "center", "bottom")
+        if align_horizontal not in _valid_h:
+            raise ValueError(
+                f"'{align_horizontal}' is not a valid value for align_horizontal. "
+                f"Choose one of: {', '.join(repr(v) for v in _valid_h)}."
+            )
+        if align_vertical not in _valid_v:
+            raise ValueError(
+                f"'{align_vertical}' is not a valid value for align_vertical. "
+                f"Choose one of: {', '.join(repr(v) for v in _valid_v)}."
+            )
+
+        if not isinstance(expand_horizontal, bool):
+            raise TypeError(
+                f"expand_horizontal must be True or False, not {type(expand_horizontal).__name__} ({expand_horizontal!r})."
+            )
+        if not isinstance(expand_vertical, bool):
+            raise TypeError(
+                f"expand_vertical must be True or False, not {type(expand_vertical).__name__} ({expand_vertical!r})."
+            )
+
         target_master = self._get_grid_master()
         
         if target_master is None:
             # Container not created yet, store for later
             self._pending_children.append({
-                'widget': widget, 'x': x, 'y': y,
+                'widget': widget, 'column': column, 'row': row,
                 'row_span': row_span, 'column_span': column_span,
                 'expand_horizontal': expand_horizontal, 'expand_vertical': expand_vertical,
                 'align_horizontal': align_horizontal, 'align_vertical': align_vertical,
                 'kwargs': kwargs
             })
-            self._num_columns = max(self._num_columns, x + column_span - 1)
-            self._num_rows = max(self._num_rows, y + row_span - 1)
+            self._num_columns = max(self._num_columns, column + column_span - 1)
+            self._num_rows = max(self._num_rows, row + row_span - 1)
             return
 
         # Create the widget if it hasn't been created
@@ -74,27 +107,27 @@ class GooeyPieContainer(GooeyPieObject):
             pass # Default
         
         # Grid it
-        widget._ctk_object.grid(row=y, column=x, rowspan=row_span, columnspan=column_span, sticky=sticky, **kwargs)
+        widget._ctk_object.grid(row=row, column=column, rowspan=row_span, columnspan=column_span, sticky=sticky, **kwargs)
         self._children.append(widget)
-        self._num_columns = max(self._num_columns, x + column_span - 1)
-        self._num_rows = max(self._num_rows, y + row_span - 1)
+        self._num_columns = max(self._num_columns, column + column_span - 1)
+        self._num_rows = max(self._num_rows, row + row_span - 1)
 
         # Auto-assign weight=1 to each column spanned, unless the user has set a custom weight
-        for col in range(x, x + column_span):
+        for col in range(column, column + column_span):
             if col not in self._user_column_weights:
                 target_master.grid_columnconfigure(col, weight=1)
 
     def _process_pending_children(self):
         """Adds any children that were added before the container was created."""
         for child in self._pending_children:
-            self.add(child['widget'], child['x'], child['y'], 
+            self.add(child['widget'], child['column'], child['row'], 
                      row_span=child['row_span'], column_span=child['column_span'],
                      expand_horizontal=child['expand_horizontal'], expand_vertical=child['expand_vertical'],
                      align_horizontal=child['align_horizontal'], align_vertical=child['align_vertical'],
                      **child['kwargs'])
         self._pending_children = []
 
-    def set_column_weight(self, index, weight):
+    def _set_column_weight(self, index, weight):
         self._user_column_weights.add(index)
         master = self._get_grid_master()
         if master:
@@ -110,9 +143,9 @@ class GooeyPieContainer(GooeyPieObject):
                 f"(one per column) but received {len(weights)}."
             )
         for i, weight in enumerate(weights, start=1):
-            self.set_column_weight(i, weight)
+            self._set_column_weight(i, weight)
 
-    def set_row_weight(self, index, weight):
+    def _set_row_weight(self, index, weight):
         master = self._get_grid_master()
         if master:
             master.grid_rowconfigure(index, weight=weight)
@@ -127,7 +160,7 @@ class GooeyPieContainer(GooeyPieObject):
                 f"(one per row) but received {len(weights)}."
             )
         for i, weight in enumerate(weights, start=1):
-            self.set_row_weight(i, weight)
+            self._set_row_weight(i, weight)
 
     def _apply_pending_container_properties(self):
         """Applies pending grid configurations."""

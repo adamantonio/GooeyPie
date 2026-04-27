@@ -1,7 +1,7 @@
 import gooeypie as gp
 
 app = gp.GooeyPieApp("Image Widget Test")
-app.set_column_weight(1, 1)
+app.set_column_weights(1)
 
 # Ensure these files exist or use absolute paths for testing if needed.
 # Based on image_button_test.py, these should be in ../images relative to examples/widgets/

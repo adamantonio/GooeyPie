@@ -62,8 +62,7 @@ for textbox in [t_default, t_disabled, t_border, t_font]:
     textbox.height = 100
 
 # Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 
 app.run()

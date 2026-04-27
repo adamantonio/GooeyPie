@@ -11,11 +11,8 @@ btn_stretch_both = gp.Button("Stretch Both", None)
 
 # --- Layout ---
 # Use weights to allow stretching
-app.set_column_weight(1, 1)
-app.set_row_weight(1, 1)
-app.set_row_weight(2, 1)
-app.set_row_weight(3, 1)
-app.set_row_weight(4, 1)
+app.set_column_weights(1)
+app.set_row_weights(1, 1, 1, 1)
 
 app.add(btn_normal, 1, 1)
 app.add(btn_stretch_x, 1, 2, expand_horizontal=True)

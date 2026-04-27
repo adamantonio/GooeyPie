@@ -81,7 +81,6 @@ bg_style.style.bg_color = "orange"
 add_row(app, 'my_group.style.corner_radius = 20\nmy_group.style.border_width = 5\nmy_group.style.bg_color = "orange"', bg_style)
 
 # Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 app.run()

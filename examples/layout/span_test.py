@@ -26,11 +26,7 @@ app.add(btn6, 2, 3)
 app.add(btn7, 3, 3)
 
 # Configure weights so we can see the spanning effect when resizing
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
-app.set_column_weight(3, 1)
-app.set_row_weight(1, 1)
-app.set_row_weight(2, 1)
-app.set_row_weight(3, 1)
+app.set_column_weights(1, 1, 1)
+app.set_row_weights(1, 1, 1)
 
 app.run()

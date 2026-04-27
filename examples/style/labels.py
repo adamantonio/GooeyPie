@@ -87,7 +87,6 @@ l_pad.style.align = "left"
 add_row(app, 'my_label.style.padding_x = 5\nmy_label.style.padding_y = 50\nmy_label.style.align = "left"', l_pad)
 
 # Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 app.run()

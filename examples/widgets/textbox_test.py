@@ -74,12 +74,11 @@ for i, widget in enumerate([text_btn, set_text_btn, disable_chk, clear_btn, appe
     operations_frame.add(widget, 1, i+1)
 
 widget_frame.add(textbox, 1, 1, expand_vertical=True)
-widget_frame.set_row_weight(1, 1)
+widget_frame.set_row_weights(1)
 
 app.add(operations_frame, 1, 1)
 app.add(widget_frame, 2, 1, expand_vertical=True)
 
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 app.run()

@@ -59,7 +59,7 @@ btn_colors = gp.Button("Toggle Colors", toggle_colors)
 status_lbl = gp.Label("Status: Ready")
 
 main = gp.Frame()
-main.set_column_weight(1, 1)
+main.set_column_weights(1)
 main.add(slider, 1, 1, expand_horizontal=True)
 main.add(btn_disable, 2, 1)
 main.add(btn_set_50, 3, 1)
@@ -70,7 +70,7 @@ main.add(btn_orient, 7, 1)
 main.add(btn_colors, 8, 1)
 main.add(status_lbl, 9, 1)
 
-app.set_column_weight(1, 1)
+app.set_column_weights(1)
 app.add(main, 1, 1, expand_horizontal=True)
 
 app.run()

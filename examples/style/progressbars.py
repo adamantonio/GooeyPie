@@ -78,7 +78,6 @@ pb_square.style.corner_radius = 0
 add_row(app, 'style.corner_radius = 0', pb_square)
 
 # Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 app.run()

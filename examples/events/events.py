@@ -19,10 +19,7 @@ def log_event(event):
 app = gp.GooeyPieApp("Event Test")
 
 app.width = 1100
-app.set_column_weight(1, 0)
-
-app.set_column_weight(2, 1)
-app.set_column_weight(3, 1)
+app.set_column_weights(0, 1, 1)
 
 lbl = gp.Label("I am a simple label")
 btn = gp.Button("I am a simple button", log_event)

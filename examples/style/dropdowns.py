@@ -86,7 +86,6 @@ d_rad.style.corner_radius = 15
 add_row(app, 'my_dropdown.style.corner_radius = 15', d_rad)
 
 # Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 app.run()

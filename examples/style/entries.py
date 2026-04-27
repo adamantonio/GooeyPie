@@ -82,7 +82,6 @@ e_radius.style.justify = "center"
 add_row(app, 'my_entry.style.corner_radius = 15\nmy_entry.style.justify = "center"', e_radius)
 
 # Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 app.run()

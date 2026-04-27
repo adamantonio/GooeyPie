@@ -27,7 +27,7 @@ def get_set(event):
 
 
 app = gp.GooeyPieApp("Checkbox Example")
-app.set_column_weight(1, 1)
+app.set_column_weights(1)
 
 accept_terms = gp.Checkbox("Accept terms")
 accept_terms.on_change(term_changed)
@@ -69,7 +69,7 @@ for count in range(3):
     todo_task.width = 400
     todo_frame.add(todo_chk, 1, count)
     todo_frame.add(todo_task, 2, count, expand_horizontal=True)
-todo_frame.set_column_weights(0, 1)
+todo_frame.set_column_weights(1, 1)
 
 
 

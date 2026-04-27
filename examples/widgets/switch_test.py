@@ -53,5 +53,5 @@ switch_frame.add(switch_status_lbl, 7, 1)
 
 app.add(switch_frame, 1, 1, expand_horizontal=True)
 
-app.set_column_weight(1, 1)
+app.set_column_weights(1)
 app.run()

@@ -87,7 +87,6 @@ s_rad.style.corner_radius = 5
 add_row(app, 'my_switch.style.corner_radius = 5', s_rad)
 
 # Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 app.run()

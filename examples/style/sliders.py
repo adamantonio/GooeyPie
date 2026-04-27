@@ -69,7 +69,6 @@ s_bc.style.border_width = 2
 add_row(app, 'my_slider.style.border_color = "darkorange"\nmy_slider.style.border_width = 2', s_bc)
 
 # Configure columns
-app.set_column_weight(1, 1)
-app.set_column_weight(2, 1)
+app.set_column_weights(1, 1)
 
 app.run()
