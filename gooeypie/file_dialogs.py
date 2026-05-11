@@ -1,16 +1,30 @@
 import os
 from tkinter import filedialog
 
+
+def _get_parent():
+    """Resolves the parent CTk window from the running GooeyPieApp."""
+    from .app import GooeyPieApp
+    app = GooeyPieApp._main_app
+    return app._ctk_object if app is not None else None
+
+
 class FileWindow:
     """Abstract base class for opening files and folders
 
     Inherited by OpenSaveFileWindow
     """
-    def __init__(self, parent, title):
-        """Creates a new FileWindow with the given parent window and title"""
-        # Under Modern GooeyPie, extract the UI object
-        master = parent._ctk_object if hasattr(parent, '_ctk_object') else parent
-        self._options = {'parent': master, 'title': title}
+    def __init__(self, title):
+        """Creates a new FileWindow with the given title"""
+        self._title = title
+        self._options = {}
+
+    def _build_options(self):
+        """Returns the options dict, resolving the parent at call time."""
+        options = dict(self._options)
+        options['parent'] = _get_parent()
+        options['title'] = self._title
+        return options
 
     def set_initial_folder(self, folder_name, *paths):
         """Sets an initial named folder that the FileWindow will open to
@@ -55,8 +69,8 @@ class FileWindow:
     def initial_path(self):
         """Gets or sets the full path of the location that the FileWindow will open to.
 
-        The path will vary by operating system - e.g. Windows fonts could be in 'C:\\Windows\\Fonts\\', but the
-        equivalent in macOS is '"'/Library/Fonts'
+        The path will vary by operating system - e.g. Windows fonts could be in 'C:\\\\Windows\\\\Fonts\\\\', but the
+        equivalent in macOS is '\"'/Library/Fonts'
         """
         return self._options.get('initialdir', None)
 
@@ -70,9 +84,9 @@ class OpenSaveFileWindow(FileWindow):
 
     Inherited by OpenFileWindow and SaveFileWindow
     """
-    def __init__(self, parent, title):
-        """Create a new Open or Save window with the given parent and title"""
-        super().__init__(parent, title)
+    def __init__(self, title):
+        """Create a new Open or Save window with the given title"""
+        super().__init__(title)
         self._options['filetypes'] = [('All files', '*.*')]
 
     def add_file_type(self, description, extension):
@@ -110,14 +124,13 @@ class OpenSaveFileWindow(FileWindow):
 
 class OpenFileWindow(OpenSaveFileWindow):
     """Open file dialog"""
-    def __init__(self, parent, title):
+    def __init__(self, title):
         """Creates a new Open File Window
 
         Args:
-            parent (WindowBase): The window or app that will initiate the Open File Window
             title (str): The title that appears on the Open File Window title bar
         """
-        super().__init__(parent, title)
+        super().__init__(title)
         self._select_multiple_files = False
 
     @property
@@ -136,22 +149,22 @@ class OpenFileWindow(OpenSaveFileWindow):
             The filename as a string including the full path, or if multiple files are selected a list of all
             path-filenames, or None if the user clicks cancel or otherwise dismisses the window
         """
+        options = self._build_options()
         if self.allow_multiple:
-            return filedialog.askopenfilenames(**self._options) or None
+            return filedialog.askopenfilenames(**options) or None
         else:
-            return filedialog.askopenfilename(**self._options) or None
+            return filedialog.askopenfilename(**options) or None
 
 
 class SaveFileWindow(OpenSaveFileWindow):
     """Save File window"""
-    def __init__(self, parent, title):
+    def __init__(self, title):
         """Creates a new Save File Window
 
         Args:
-            parent (WindowBase): The window or app that will initiate the Open File Window
             title (str): The title that appears on the Save File Window title bar
         """
-        super().__init__(parent, title)
+        super().__init__(title)
 
     def open(self):
         """Launches the file save window
@@ -162,19 +175,18 @@ class SaveFileWindow(OpenSaveFileWindow):
         """
 
         # If the default extension is not specified, no extension is added even when one is selected
-        return filedialog.asksaveasfilename(**self._options, defaultextension='') or None
+        return filedialog.asksaveasfilename(**self._build_options(), defaultextension='') or None
 
 
 class OpenFolderWindow(FileWindow):
     """Allows a user to select a folder on their local system, returns the full path to the folder"""
-    def __init__(self, parent, title):
+    def __init__(self, title):
         """Creates a new Open Folder Window
 
         Args:
-            parent (WindowBase): The window or app that will initiate the Open Folder Window
             title (str): The title that appears on the Open Folder Window title bar
         """
-        super().__init__(parent, title)
+        super().__init__(title)
 
     def open(self):
         """Launches the Open Folder window
@@ -183,5 +195,4 @@ class OpenFolderWindow(FileWindow):
             The complete path to the selected folder as a string, or None if the user selects Cancel or otherwise
                 dismisses the window
         """
-        return filedialog.askdirectory(**self._options, mustexist=True) or None
-
+        return filedialog.askdirectory(**self._build_options(), mustexist=True) or None
