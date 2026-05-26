@@ -117,6 +117,9 @@ class GooeyPieContainer(GooeyPieObject):
             if col not in self._user_column_weights:
                 target_master.grid_columnconfigure(col, weight=1)
 
+        if hasattr(self, '_update_sizes'):
+            self._update_sizes()
+
     def _process_pending_children(self):
         """Adds any children that were added before the container was created."""
         for child in self._pending_children:
@@ -193,15 +196,61 @@ class Frame(GooeyPieContainer, GooeyPieWidget):
         GooeyPieContainer.__init__(self)
         GooeyPieWidget.__init__(self, **kwargs)
 
+    @property
+    def width(self):
+        return GooeyPieWidget.width.fget(self)
+
+    @width.setter
+    def width(self, value):
+        GooeyPieWidget.width.fset(self, value)
+        if self._ctk_object:
+            self._ctk_object.pack_propagate(False)
+            self._update_sizes()
+
+    @property
+    def height(self):
+        return GooeyPieWidget.height.fget(self)
+
+    @height.setter
+    def height(self, value):
+        GooeyPieWidget.height.fset(self, value)
+        if self._ctk_object:
+            self._ctk_object.pack_propagate(False)
+            self._update_sizes()
+
+    def _update_sizes(self):
+        if not self._ctk_object:
+            return
+        
+        custom_w = self._constructor_kwargs.get('width')
+        custom_h = self._constructor_kwargs.get('height')
+        
+        if custom_w is None and custom_h is None:
+            return
+            
+        self._ctk_object.update_idletasks()
+        
+        req_w = self._grid_master.winfo_reqwidth() + (2 * CONTAINER_PADDING)
+        req_h = self._grid_master.winfo_reqheight() + (2 * CONTAINER_PADDING)
+        
+        w = custom_w if custom_w is not None else req_w
+        h = custom_h if custom_h is not None else req_h
+        
+        self._ctk_object.configure(width=w, height=h)
+
     def _create_widget(self, master):
         self._ctk_object = ctk.CTkFrame(master, **self._constructor_kwargs)
         
+        if 'width' in self._constructor_kwargs or 'height' in self._constructor_kwargs:
+            self._ctk_object.pack_propagate(False)
+            
         # Create the internal grid frame with transparent background
         # This handles the extra padding needed to reach 24px from edge (16 + 8 from widget)
         self._grid_master = ctk.CTkFrame(self._ctk_object, fg_color="transparent")
         self._grid_master.pack(expand=True, fill="both", padx=CONTAINER_PADDING, pady=CONTAINER_PADDING)
         self._apply_pending_container_properties()
         self._process_pending_children()
+        self._update_sizes()
 
 
 class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
@@ -279,9 +328,57 @@ class Container(GooeyPieContainer, GooeyPieWidget):
         GooeyPieContainer.__init__(self)
         GooeyPieWidget.__init__(self, **kwargs)
 
+    @property
+    def width(self):
+        return GooeyPieWidget.width.fget(self)
+
+    @width.setter
+    def width(self, value):
+        GooeyPieWidget.width.fset(self, value)
+        if self._ctk_object:
+            self._ctk_object.pack_propagate(False)
+            self._update_sizes()
+
+    @property
+    def height(self):
+        return GooeyPieWidget.height.fget(self)
+
+    @height.setter
+    def height(self, value):
+        GooeyPieWidget.height.fset(self, value)
+        if self._ctk_object:
+            self._ctk_object.pack_propagate(False)
+            self._update_sizes()
+
+    def _update_sizes(self):
+        if not self._ctk_object:
+            return
+        
+        custom_w = self._constructor_kwargs.get('width')
+        custom_h = self._constructor_kwargs.get('height')
+        
+        if custom_w is None and custom_h is None:
+            return
+            
+        self._ctk_object.update_idletasks()
+        
+        req_w = self._grid_master.winfo_reqwidth()
+        req_h = self._grid_master.winfo_reqheight()
+        
+        w = custom_w if custom_w is not None else req_w
+        h = custom_h if custom_h is not None else req_h
+        
+        self._ctk_object.configure(width=w, height=h)
+
     def _create_widget(self, master):
         self._ctk_object = ctk.CTkFrame(master, fg_color="transparent", border_width=0, corner_radius=0, **self._constructor_kwargs)
-        # For Container, the grid master is the widget itself (no internal padding frame)
-        self._grid_master = self._ctk_object
+        
+        if 'width' in self._constructor_kwargs or 'height' in self._constructor_kwargs:
+            self._ctk_object.pack_propagate(False)
+            
+        # For Container, we create the internal grid frame with transparent background and no padding
+        self._grid_master = ctk.CTkFrame(self._ctk_object, fg_color="transparent")
+        self._grid_master.pack(expand=True, fill="both")
         self._apply_pending_container_properties()
         self._process_pending_children()
+        self._update_sizes()
