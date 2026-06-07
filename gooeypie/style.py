@@ -684,11 +684,46 @@ class GooeyPieStyle:
     def date_border_width(self, v): self._set('date_border_width', v)
 
     @property
+    def date_font_name(self): return self._get('date_font_name')
+    @date_font_name.setter
+    def date_font_name(self, v): self._set('date_font_name', v)
+
+    @property
+    def date_font_size(self): return self._get('date_font_size')
+    @date_font_size.setter
+    def date_font_size(self, v): self._set('date_font_size', v)
+
+    @property
+    def date_font_style(self): return self._get('date_font_style')
+    @date_font_style.setter
+    def date_font_style(self, v): self._set('date_font_style', v)
+
+    @property
+    def date_font_weight(self): return self._get('date_font_weight')
+    @date_font_weight.setter
+    def date_font_weight(self, v): self._set('date_font_weight', v)
+
+    @property
     def open_button_bg_color(self): return self._get('open_button_bg_color')
     @open_button_bg_color.setter
     def open_button_bg_color(self, v): self._set('open_button_bg_color', v)
 
     @property
-    def open_button_text_color(self): return self._get('open_button_text_color')
-    @open_button_text_color.setter
-    def open_button_text_color(self, v): self._set('open_button_text_color', v)
+    def open_button_icon_color(self): return self._get('open_button_icon_color')
+    @open_button_icon_color.setter
+    def open_button_icon_color(self, v): self._set('open_button_icon_color', v)
+
+    @property
+    def month_button_hover_color(self): return self._get('month_button_hover_color')
+    @month_button_hover_color.setter
+    def month_button_hover_color(self, v): self._set('month_button_hover_color', v)
+
+    @property
+    def open_button_hover_color(self): return self._get('open_button_hover_color')
+    @open_button_hover_color.setter
+    def open_button_hover_color(self, v): self._set('open_button_hover_color', v)
+
+    @property
+    def day_hover_color(self): return self._get('day_hover_color')
+    @day_hover_color.setter
+    def day_hover_color(self, v): self._set('day_hover_color', v)

@@ -29,6 +29,7 @@ class _CTkDatePicker(ctk.CTkFrame):
         """
         Initialize the _CTkDatePicker instance.
         """
+        width_val = kwargs.get('width')
         super().__init__(master, **kwargs)
         self.parent_widget = parent_widget
 
@@ -37,8 +38,15 @@ class _CTkDatePicker(ctk.CTkFrame):
         # Bind key events for manual entry detection
         self.date_entry.bind("<KeyRelease>", self._on_entry_change)
 
-        self.calendar_button = ctk.CTkButton(self, text="▼", width=20, command=self.open_calendar)
+        self.calendar_button = ctk.CTkButton(self, text="▼", width=20, font=("Helvetica", 12, "bold"), command=self.open_calendar)
         self.calendar_button.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
+
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=0)
+
+        if width_val is not None:
+            entry_width = max(10, width_val - 40)
+            self.date_entry.configure(width=entry_width)
 
         self.popup = None
         self.selected_date = None
@@ -47,13 +55,80 @@ class _CTkDatePicker(ctk.CTkFrame):
         self.allow_change_month = True
         self.add_months_amount = 0
         self.subtract_months_amount = 0
+        self._disabled = False
+        self.minimum_date = None
+        self.maximum_date = None
+
+        self._original_text_color = self.date_entry.cget('text_color')
+        self._default_disabled_color = self.date_entry.cget('placeholder_text_color')
+
+        # Intercept configure on the raw entry to capture dynamic style changes
+        self.date_entry._original_configure = self.date_entry.configure
+        self.date_entry.configure = self._configure_date_entry
+
+    def _configure_date_entry(self, **kwargs):
+        if 'text_color' in kwargs:
+            self._original_text_color = kwargs['text_color']
+            if self.disabled:
+                disabled_color = self._default_disabled_color
+                if self.parent_widget:
+                    custom_color = self.parent_widget._get_property('text_disabled_color')
+                    if custom_color:
+                        disabled_color = custom_color
+                kwargs['text_color'] = disabled_color
+        self.date_entry._original_configure(**kwargs)
 
     def _on_entry_change(self, event=None):
         if self.parent_widget:
             self.parent_widget._check_change()
 
+    @property
+    def disabled(self):
+        return self._disabled
+
+    @disabled.setter
+    def disabled(self, value):
+        self._disabled = value
+        if value:
+            self.date_entry.configure(state='disabled')
+            disabled_color = self._default_disabled_color
+            if self.parent_widget:
+                custom_color = self.parent_widget._get_property('text_disabled_color')
+                if custom_color:
+                    disabled_color = custom_color
+            self.date_entry.configure(text_color=disabled_color)
+            self.calendar_button.configure(state='disabled')
+        else:
+            self.calendar_button.configure(state='normal')
+            if self.allow_manual_input:
+                self.date_entry.configure(state='normal')
+            else:
+                self.date_entry.configure(state='disabled')
+            self.date_entry.configure(text_color=self._original_text_color)
+
+    def configure(self, require_redraw=False, **kwargs):
+        if 'state' in kwargs:
+            state_val = kwargs.pop('state')
+            self.disabled = (state_val == 'disabled')
+        if 'width' in kwargs:
+            width_val = kwargs.get('width')
+            entry_width = max(10, width_val - 40)
+            self.date_entry.configure(width=entry_width)
+        super().configure(require_redraw=require_redraw, **kwargs)
+
+    def cget(self, attribute_name: str):
+        if attribute_name == 'state':
+            return 'disabled' if self.disabled else 'normal'
+        return super().cget(attribute_name)
+
     def set_date_format(self, date_format):
         self.date_format = date_format
+
+    def set_minimum_date(self, val):
+        self.minimum_date = val
+
+    def set_maximum_date(self, val):
+        self.maximum_date = val
 
     def set_localization(self, localization):
         try:
@@ -63,18 +138,44 @@ class _CTkDatePicker(ctk.CTkFrame):
             pass
 
     def open_calendar(self):
+        if self.disabled:
+            return
         if self.popup is not None:
             self.popup.destroy()
         self.popup = ctk.CTkToplevel(self)
-        self.popup.title("Select Date")
+        self.popup.overrideredirect(True)
         self.popup.geometry("+%d+%d" % (self.winfo_rootx(), self.winfo_rooty() + self.winfo_height()))
         self.popup.resizable(False, False)
 
         self.popup.after(100, lambda: self.popup.focus())
+        self.popup.bind("<FocusOut>", self._on_focus_out)
 
-        self.current_year = datetime.now().year
-        self.current_month = datetime.now().month
+        # Default to present month/year
+        year = datetime.now().year
+        month = datetime.now().month
+
+        entry_val = self.get_date()
+        if entry_val:
+            try:
+                parsed_dt = datetime.strptime(entry_val, self.date_format)
+                year = parsed_dt.year
+                month = parsed_dt.month
+            except ValueError:
+                pass
+
+        self.current_year = year
+        self.current_month = month
         self.build_calendar()
+
+    def _on_focus_out(self, event=None):
+        self.popup.after(10, self._check_focus)
+
+    def _check_focus(self):
+        if self.popup:
+            focused = self.popup.focus_get()
+            if focused is None or not str(focused).startswith(str(self.popup)):
+                self.popup.destroy()
+                self.popup = None
 
     def _assemble_font(self, prefix):
         if not self.parent_widget:
@@ -113,8 +214,10 @@ class _CTkDatePicker(ctk.CTkFrame):
             pw = self.parent_widget
             month_tc = pw._get_property('month_text_color')
             day_tc = pw._get_property('day_text_color')
+            day_hc = pw._get_property('day_hover_color')
             month_btn_bg = pw._get_property('month_button_bg_color')
             month_btn_tc = pw._get_property('month_button_text_color')
+            month_btn_hc = pw._get_property('month_button_hover_color')
             
             month_font = self._assemble_font('month')
             day_font = self._assemble_font('day')
@@ -151,12 +254,14 @@ class _CTkDatePicker(ctk.CTkFrame):
             prev_kwargs = {"text": "<", "width": 5, "command": self.prev_month}
             if month_btn_bg and month_btn_bg != 'transparent': prev_kwargs["fg_color"] = month_btn_bg
             if month_btn_tc: prev_kwargs["text_color"] = month_btn_tc
+            if month_btn_hc: prev_kwargs["hover_color"] = month_btn_hc
             prev_month_button = ctk.CTkButton(self.calendar_frame, **prev_kwargs)
             prev_month_button.grid(row=0, column=0)
 
             next_kwargs = {"text": ">", "width": 5, "command": self.next_month}
             if month_btn_bg and month_btn_bg != 'transparent': next_kwargs["fg_color"] = month_btn_bg
             if month_btn_tc: next_kwargs["text_color"] = month_btn_tc
+            if month_btn_hc: next_kwargs["hover_color"] = month_btn_hc
             next_month_button = ctk.CTkButton(self.calendar_frame, **next_kwargs)
             next_month_button.grid(row=0, column=6)
 
@@ -182,17 +287,35 @@ class _CTkDatePicker(ctk.CTkFrame):
                     lbl = ctk.CTkLabel(self.calendar_frame, text="")
                     lbl.grid(row=week, column=day_col)
                 else:
+                    current_date = dt.date(self.current_year, self.current_month, day)
+                    is_selectable = True
+                    if self.minimum_date is not None and current_date < self.minimum_date:
+                        is_selectable = False
+                    if self.maximum_date is not None and current_date > self.maximum_date:
+                        is_selectable = False
+
                     btn_kwargs = {
                         "text": str(day),
                         "width": 3,
-                        "command": lambda d=day: self.select_date(d),
                         "fg_color": "transparent"
                     }
-                    if ctk.get_appearance_mode() == "Light":
-                        btn_kwargs["text_color"] = day_tc or "black"
-                        btn_kwargs["hover_color"] = "#3b8ed0" # default ctk hover
-                    elif day_tc:
-                        btn_kwargs["text_color"] = day_tc
+                    if is_selectable:
+                        btn_kwargs["command"] = lambda d=day: self.select_date(d)
+                        if day_hc:
+                            btn_kwargs["hover_color"] = day_hc
+                        elif ctk.get_appearance_mode() == "Light":
+                            btn_kwargs["hover_color"] = "#3b8ed0" # default ctk hover
+
+                        if ctk.get_appearance_mode() == "Light":
+                            btn_kwargs["text_color"] = day_tc or "black"
+                        elif day_tc:
+                            btn_kwargs["text_color"] = day_tc
+                    else:
+                        btn_kwargs["state"] = "disabled"
+                        if ctk.get_appearance_mode() == "Light":
+                            btn_kwargs["text_color"] = "#a0a0a0"
+                        else:
+                            btn_kwargs["text_color"] = "#505050"
 
                     if day_font:
                         btn_kwargs["font"] = day_font
@@ -218,6 +341,11 @@ class _CTkDatePicker(ctk.CTkFrame):
         self.build_calendar()
 
     def select_date(self, day):
+        selected = datetime(self.current_year, self.current_month, day).date()
+        if self.minimum_date is not None and selected < self.minimum_date:
+            return
+        if self.maximum_date is not None and selected > self.maximum_date:
+            return
         self.selected_date = datetime(self.current_year, self.current_month, day)
         self.date_entry.configure(state='normal')
         self.date_entry.delete(0, tk.END)
@@ -236,10 +364,11 @@ class _CTkDatePicker(ctk.CTkFrame):
 
     def set_allow_manual_input(self, value):
         self.allow_manual_input = value
-        if not value:
-            self.date_entry.configure(state='disabled')
-        else:
-            self.date_entry.configure(state='normal')
+        if not self.disabled:
+            if not value:
+                self.date_entry.configure(state='disabled')
+            else:
+                self.date_entry.configure(state='normal')
 
     def set_change_months(self, add_or_sub, value):
         if add_or_sub == "add":
@@ -251,6 +380,8 @@ class _CTkDatePicker(ctk.CTkFrame):
 class DatePicker(GooeyPieWidget):
     _style_properties = (
         'text_color',
+        'text_disabled_color',
+        'text_color_disabled',
         'corner_radius',
         'month_font_name',
         'month_font_size',
@@ -262,22 +393,37 @@ class DatePicker(GooeyPieWidget):
         'day_font_style',
         'day_font_weight',
         'day_text_color',
+        'day_hover_color',
         'month_button_bg_color',
         'month_button_text_color',
+        'month_button_hover_color',
         'open_button_bg_color',
-        'open_button_text_color',
+        'open_button_icon_color',
+        'open_button_hover_color',
         'date_bg_color',
         'date_border_color',
-        'date_border_width'
+        'date_border_width',
+        'date_font_name',
+        'date_font_size',
+        'date_font_style',
+        'date_font_weight'
     )
     
     def __init__(self, **kwargs):
+        min_date = kwargs.pop('minimum_date', None)
+        max_date = kwargs.pop('maximum_date', None)
         super().__init__(**kwargs)
         self._last_date_str = ""
         self._localization = ""
+        self._minimum_date = None
+        self._maximum_date = None
+        self.minimum_date = min_date
+        self.maximum_date = max_date
         
     def _create_widget(self, master):
-        self._ctk_object = _CTkDatePicker(master, parent_widget=self, fg_color="transparent")
+        kwargs = self._constructor_kwargs.copy()
+        kwargs.pop('state', None)
+        self._ctk_object = _CTkDatePicker(master, parent_widget=self, fg_color="transparent", **kwargs)
         # Apply cached state
         if hasattr(self, '_format'):
             self._ctk_object.set_date_format(self._format)
@@ -285,8 +431,16 @@ class DatePicker(GooeyPieWidget):
             self._ctk_object.set_localization(self._localization)
         if hasattr(self, '_allow_manual_input'):
             self._ctk_object.set_allow_manual_input(self._allow_manual_input)
+        if hasattr(self, '_minimum_date') and self._minimum_date:
+            self._ctk_object.set_minimum_date(self._minimum_date)
+        if hasattr(self, '_maximum_date') and self._maximum_date:
+            self._ctk_object.set_maximum_date(self._maximum_date)
         if self._last_date_str:
             self.date_str = self._last_date_str
+            
+        # Apply disabled state if set
+        if self._constructor_kwargs.get('state') == 'disabled':
+            self._ctk_object.disabled = True
             
         # Apply initial styles
         for prop in self._style_properties:
@@ -298,19 +452,32 @@ class DatePicker(GooeyPieWidget):
         if key in self._style_properties and key not in ('text_color', 'corner_radius'):
             if not hasattr(self, '_custom_styles'):
                 self._custom_styles = {}
-            self._custom_styles[key] = value
+            if key in ('text_disabled_color', 'text_color_disabled'):
+                self._custom_styles['text_disabled_color'] = value
+                self._custom_styles['text_color_disabled'] = value
+            else:
+                self._custom_styles[key] = value
             # Apply to open button if needed
             if self._ctk_object:
                 if key == 'open_button_bg_color':
                     self._ctk_object.calendar_button.configure(fg_color=value)
-                elif key == 'open_button_text_color':
+                elif key == 'open_button_icon_color':
                     self._ctk_object.calendar_button.configure(text_color=value)
+                elif key == 'open_button_hover_color':
+                    self._ctk_object.calendar_button.configure(hover_color=value)
                 elif key == 'date_bg_color':
                     self._ctk_object.date_entry.configure(fg_color=value)
                 elif key == 'date_border_color':
                     self._ctk_object.date_entry.configure(border_color=value)
                 elif key == 'date_border_width':
                     self._ctk_object.date_entry.configure(border_width=value)
+                elif key in ('text_disabled_color', 'text_color_disabled'):
+                    if self.disabled:
+                        self._ctk_object.date_entry.configure(text_color=value)
+                elif key in ('date_font_name', 'date_font_size', 'date_font_style', 'date_font_weight'):
+                    font = self._ctk_object._assemble_font('date')
+                    if font:
+                        self._ctk_object.date_entry.configure(font=font)
             return
             
         super()._set_property(key, value)
@@ -322,10 +489,24 @@ class DatePicker(GooeyPieWidget):
                 except Exception:
                     pass
 
+    def _apply_pending_properties(self):
+        if 'text_color' in self._pending_properties:
+            text_color = self._pending_properties.pop('text_color')
+            if self._ctk_object:
+                self._ctk_object.date_entry.configure(text_color=text_color)
+        for key in ('text_disabled_color', 'text_color_disabled'):
+            if key in self._pending_properties:
+                val = self._pending_properties.pop(key)
+                if self._ctk_object and self.disabled:
+                    self._ctk_object.date_entry.configure(text_color=val)
+        super()._apply_pending_properties()
+
     def _get_property(self, key):
         if key in self._style_properties and key not in ('text_color', 'corner_radius'):
             if not hasattr(self, '_custom_styles'):
                 self._custom_styles = {}
+            if key in ('text_disabled_color', 'text_color_disabled'):
+                return self._custom_styles.get('text_disabled_color') or self._custom_styles.get('text_color_disabled')
             return self._custom_styles.get(key)
         return super()._get_property(key)
 
@@ -350,9 +531,19 @@ class DatePicker(GooeyPieWidget):
         if value is None:
             self.clear()
         elif isinstance(value, dt.date):
+            d_val = value.date() if isinstance(value, datetime) else value
+            if self.minimum_date is not None and d_val < self.minimum_date:
+                raise ValueError(f"Date {d_val} is before the minimum allowed date {self.minimum_date}")
+            if self.maximum_date is not None and d_val > self.maximum_date:
+                raise ValueError(f"Date {d_val} is after the maximum allowed date {self.maximum_date}")
             self.date_str = value.strftime(self.format)
         elif isinstance(value, datetime):
-            self.date_str = value.date().strftime(self.format)
+            d_val = value.date()
+            if self.minimum_date is not None and d_val < self.minimum_date:
+                raise ValueError(f"Date {d_val} is before the minimum allowed date {self.minimum_date}")
+            if self.maximum_date is not None and d_val > self.maximum_date:
+                raise ValueError(f"Date {d_val} is after the maximum allowed date {self.maximum_date}")
+            self.date_str = d_val.strftime(self.format)
         else:
             raise ValueError("date must be a datetime.date object")
 
@@ -365,17 +556,14 @@ class DatePicker(GooeyPieWidget):
     @date_str.setter
     def date_str(self, value):
         if self._ctk_object:
-            was_disabled = not self._ctk_object.allow_manual_input
-            if was_disabled:
-                self._ctk_object.set_allow_manual_input(True)
+            current_state = self._ctk_object.date_entry.cget('state')
+            self._ctk_object.date_entry.configure(state='normal')
             
             self._ctk_object.date_entry.delete(0, 'end')
             if value:
                 self._ctk_object.date_entry.insert(0, value)
             
-            if was_disabled:
-                self._ctk_object.set_allow_manual_input(False)
-                
+            self._ctk_object.date_entry.configure(state=current_state)
             self._check_change()
         else:
             self._last_date_str = value
@@ -456,5 +644,67 @@ class DatePicker(GooeyPieWidget):
     def clear(self):
         self.date_str = ""
 
+    @property
+    def width(self):
+        if self._ctk_object:
+            return self._ctk_object.cget('width')
+        return self._constructor_kwargs.get('width')
+
+    @width.setter
+    def width(self, value):
+        if self._ctk_object:
+            self._ctk_object.configure(width=value)
+        self._constructor_kwargs['width'] = value
+
+    @property
+    def minimum_date(self):
+        return self._minimum_date
+
+    @minimum_date.setter
+    def minimum_date(self, value):
+        if value is not None:
+            if isinstance(value, datetime):
+                value = value.date()
+            if not isinstance(value, dt.date):
+                raise TypeError("minimum_date must be a datetime.date object")
+            if self._maximum_date is not None and value > self._maximum_date:
+                raise ValueError(f"Invalid date range: The minimum date ({value}) cannot be later than the maximum date ({self._maximum_date}).")
+        self._minimum_date = value
+        if self._ctk_object:
+            self._ctk_object.set_minimum_date(value)
+
+    @property
+    def maximum_date(self):
+        return self._maximum_date
+
+    @maximum_date.setter
+    def maximum_date(self, value):
+        if value is not None:
+            if isinstance(value, datetime):
+                value = value.date()
+            if not isinstance(value, dt.date):
+                raise TypeError("maximum_date must be a datetime.date object")
+            if self._minimum_date is not None and value < self._minimum_date:
+                raise ValueError(f"Invalid date range: The maximum date ({value}) cannot be earlier than the minimum date ({self._minimum_date}).")
+        self._maximum_date = value
+        if self._ctk_object:
+            self._ctk_object.set_maximum_date(value)
+
     def on_change(self, event_function):
         self._set_event('change', event_function)
+
+    def _bind_event(self, event_name, sequence):
+        if self._ctk_object:
+            def handler(event):
+                self._handle_event(event_name, event)
+            
+            # Keyboard and focus events should go directly to the text entry component
+            if event_name in ('focus_gained', 'focus_lost', 'key_press'):
+                self._ctk_object.date_entry.bind(sequence, handler, add='+')
+            else:
+                # Mouse/click/hover events bind to the outer frame, entry component, and button
+                self._ctk_object.bind(sequence, handler, add='+')
+                self._ctk_object.date_entry.bind(sequence, handler, add='+')
+                self._ctk_object.calendar_button.bind(sequence, handler, add='+')
+        else:
+            self._pending_bindings.append((event_name, sequence))

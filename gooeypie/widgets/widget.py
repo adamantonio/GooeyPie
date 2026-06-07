@@ -63,14 +63,11 @@ class GooeyPieWidget(GooeyPieObject):
     def _apply_bindings(self):
         """Applies any pending event bindings."""
         if self._ctk_object and self._pending_bindings:
-            for event_name, sequence in self._pending_bindings:
-                
-                # Careful with closure in loop
-                name = event_name
-                def handler(event, name=name):
-                    self._handle_event(name, event)
-                self._ctk_object.bind(sequence, handler, add='+')
+            bindings = list(self._pending_bindings)
             self._pending_bindings = []
+            for event_name, sequence in bindings:
+                self._bind_event(event_name, sequence)
+
 
     def on_click(self, event_function):
         self._set_event('click', event_function)
