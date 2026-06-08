@@ -34,12 +34,12 @@ class _CTkDatePicker(ctk.CTkFrame):
         self.parent_widget = parent_widget
 
         self.date_entry = ctk.CTkEntry(self)
-        self.date_entry.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+        self.date_entry.grid(row=0, column=0, sticky="ew", padx=(0, 5), pady=0)
         # Bind key events for manual entry detection
         self.date_entry.bind("<KeyRelease>", self._on_entry_change)
 
         self.calendar_button = ctk.CTkButton(self, text="▼", width=20, font=("Helvetica", 12, "bold"), command=self.open_calendar)
-        self.calendar_button.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
+        self.calendar_button.grid(row=0, column=1, sticky="ew", padx=0, pady=0)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=0)
