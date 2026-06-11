@@ -154,7 +154,7 @@ wheels = [
 
 [[package]]
 name = "gooeypie"
-version = "0.14.0"
+version = "0.16.0"
 source = { editable = "." }
 dependencies = [
     { name = "ctklistbox" },
