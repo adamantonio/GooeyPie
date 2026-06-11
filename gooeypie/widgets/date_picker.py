@@ -555,6 +555,12 @@ class DatePicker(GooeyPieWidget):
 
     @date_str.setter
     def date_str(self, value):
+        if value:
+            try:
+                datetime.strptime(value, self.format)
+            except ValueError:
+                raise ValueError(f"Date string '{value}' does not match the required format '{self.format}'")
+
         if self._ctk_object:
             current_state = self._ctk_object.date_entry.cget('state')
             self._ctk_object.date_entry.configure(state='normal')

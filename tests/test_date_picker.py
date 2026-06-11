@@ -23,6 +23,15 @@ class TestDatePicker(unittest.TestCase):
         self.dp.date_str = "2023-06-15"
         self.assertEqual(self.dp.date, dt.date(2023, 6, 15))
 
+    def test_date_str_property_invalid_format(self):
+        self.dp.format = "%Y-%m-%d"
+        with self.assertRaises(ValueError) as ctx:
+            self.dp.date_str = "invalid_format"
+        self.assertIn("does not match the required format '%Y-%m-%d'", str(ctx.exception))
+        
+        with self.assertRaises(ValueError):
+            self.dp.date_str = "12/25/2026"
+
     def test_set_today(self):
         self.dp.set_today()
         self.assertEqual(self.dp.date, datetime.now().date())

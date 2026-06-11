@@ -549,6 +549,105 @@ class GooeyPieStyle:
     @track_color.setter
     def track_color(self, v): self._set('fg_color', v)
 
+    @property
+    def table_bg_color(self): return self._get('table_bg_color')
+    @table_bg_color.setter
+    def table_bg_color(self, v): self._set('table_bg_color', v)
+
+    @property
+    def header_bg_color(self): return self._get('header_bg_color')
+    @header_bg_color.setter
+    def header_bg_color(self, v): self._set('header_bg_color', v)
+
+    @property
+    def header_text_color(self): return self._get('header_text_color')
+    @header_text_color.setter
+    def header_text_color(self, v): self._set('header_text_color', v)
+
+    def _update_header_font(self, family=None, size=None, weight=None, slant=None):
+        current_font = self._get('header_font')
+        if isinstance(current_font, ctk.CTkFont):
+            new_font = current_font
+            if family: 
+                resolved = self._resolve_font_family(family)
+                new_font.configure(family=resolved)
+            if size: new_font.configure(size=size)
+            if weight: new_font.configure(weight=weight)
+            if slant: new_font.configure(slant=slant)
+        else:
+            c_family, c_size, c_weight, c_slant = "Arial", 12, "normal", "roman"
+            if isinstance(current_font, (tuple, list)):
+                if len(current_font) > 0: c_family = current_font[0]
+                if len(current_font) > 1: c_size = current_font[1]
+                if len(current_font) > 2:
+                    style_str = str(current_font[2]).lower()
+                    if "bold" in style_str: c_weight = "bold"
+                    if "italic" in style_str: c_slant = "italic"
+            
+            new_family = self._resolve_font_family(family if family else c_family)
+            new_size = size if size else c_size
+            new_weight = weight if weight else c_weight
+            new_slant = slant if slant else c_slant
+            
+            new_font = ctk.CTkFont(family=new_family, size=new_size, weight=new_weight, slant=new_slant)
+
+        self._set('header_font', new_font)
+
+    @property
+    def header_font_name(self):
+        font = self._get('header_font')
+        if isinstance(font, ctk.CTkFont): return font.cget("family")
+        if isinstance(font, (tuple, list)) and len(font) > 0: return font[0]
+        return "Arial"
+
+    @header_font_name.setter
+    def header_font_name(self, v): self._update_header_font(family=v)
+
+    @property
+    def header_font_size(self):
+        font = self._get('header_font')
+        if isinstance(font, ctk.CTkFont): return font.cget("size")
+        if isinstance(font, (tuple, list)) and len(font) > 1: return font[1]
+        return 12
+
+    @header_font_size.setter
+    def header_font_size(self, v): self._update_header_font(size=v)
+
+    @property
+    def header_text_size(self): return self.header_font_size
+    @header_text_size.setter
+    def header_text_size(self, v): self.header_font_size = v
+
+    @property
+    def header_font_weight(self):
+        font = self._get('header_font')
+        if isinstance(font, ctk.CTkFont): return font.cget("weight")
+        if isinstance(font, (tuple, list)) and len(font) > 2: 
+             if "bold" in str(font[2]).lower(): return "bold"
+        return "normal"
+
+    @header_font_weight.setter
+    def header_font_weight(self, v):
+        if v not in ("bold", "normal"):
+            raise ValueError(f"Invalid font weight '{v}'. The only valid options are 'bold' or 'normal'.")
+        self._update_header_font(weight=v)
+
+    @property
+    def header_font_style(self):
+        font = self._get('header_font')
+        val = "roman"
+        if isinstance(font, ctk.CTkFont): val = font.cget("slant")
+        elif isinstance(font, (tuple, list)) and len(font) > 2:
+            if "italic" in str(font[2]).lower(): val = "italic"
+        return "italic" if val == "italic" else "normal"
+
+    @header_font_style.setter
+    def header_font_style(self, v):
+        if v not in ("italic", "normal"):
+            raise ValueError(f"Invalid font style '{v}'. The only valid options are 'italic' or 'normal'.")
+        slant = "italic" if v == "italic" else "roman"
+        self._update_header_font(slant=slant)
+
     # DatePicker specific styles
     @property
     def month_font_name(self): return self._get('month_font_name')

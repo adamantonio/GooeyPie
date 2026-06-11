@@ -5,6 +5,8 @@ def change_theme(e):
         app.theme = "light"
     else:
         app.theme = "dark"
+        
+    dp.clear()
 
 app = gp.GooeyPieApp("Widget Gallery")
 app.theme = "dark"
@@ -22,6 +24,8 @@ listbox.height = 120
 textbox = gp.Textbox("")
 textbox.height = 120
 
+dp = gp.DatePicker()
+
 widgets.append(gp.Button("Button", None))
 widgets.append(gp.ButtonGroup(['Button 1', 'Button 2', 'Button 3']))
 widgets.append(gp.Checkbox("Checkbox"))
@@ -36,7 +40,7 @@ widgets.append(gp.Secret("Secret"))
 widgets.append(gp.Slider(1, 10))
 widgets.append(gp.Switch("Switch"))
 widgets.append(textbox)
-widgets.append(gp.DatePicker())
+widgets.append(dp)
 
 for i, widget in enumerate(widgets):
     col = i // 3 + 1
