@@ -14,3 +14,4 @@ from .listbox import Listbox
 from .progressbar import Progressbar
 from .textbox import Textbox
 from .date_picker import DatePicker
+from .table import Table
