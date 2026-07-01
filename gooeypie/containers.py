@@ -19,7 +19,8 @@ class GooeyPieContainer(GooeyPieObject):
         """Returns the widget that acts as the parent for the grid (geometry master)."""
         return self._grid_master or self._ctk_object
 
-    def add(self, widget, column, row, row_span=1, column_span=1, expand_horizontal=False, expand_vertical=False, align_horizontal="center", align_vertical="center", **kwargs):
+    def add(self, widget, column, row, row_span=1, column_span=1, expand_horizontal=False, expand_vertical=False, align_horizontal="center", align_vertical="center", 
+            margin=None, margin_horizontal=None, margin_vertical=None, margin_left=None, margin_top=None, margin_right=None, margin_bottom=None, **kwargs):
         """Adds a widget to this container at grid position (column, row)."""
         if not isinstance(widget, GooeyPieWidget):
             raise ValueError(f"Can only add GooeyPieWidgets to a window or container. Received {type(widget).__name__}.")
@@ -66,6 +67,8 @@ class GooeyPieContainer(GooeyPieObject):
                 'row_span': row_span, 'column_span': column_span,
                 'expand_horizontal': expand_horizontal, 'expand_vertical': expand_vertical,
                 'align_horizontal': align_horizontal, 'align_vertical': align_vertical,
+                'margin': margin, 'margin_horizontal': margin_horizontal, 'margin_vertical': margin_vertical,
+                'margin_left': margin_left, 'margin_top': margin_top, 'margin_right': margin_right, 'margin_bottom': margin_bottom,
                 'kwargs': kwargs
             })
             self._num_columns = max(self._num_columns, column + column_span - 1)
@@ -80,8 +83,16 @@ class GooeyPieContainer(GooeyPieObject):
         
         # Set default padding if not provided, using the widget's preference if available
         default_padding = getattr(widget, '_default_grid_padding', WIDGET_PADDING)
-        kwargs.setdefault('padx', default_padding)
-        kwargs.setdefault('pady', default_padding)
+        
+        if 'padx' not in kwargs:
+            pad_l = margin_left if margin_left is not None else (margin_horizontal if margin_horizontal is not None else (margin if margin is not None else default_padding))
+            pad_r = margin_right if margin_right is not None else (margin_horizontal if margin_horizontal is not None else (margin if margin is not None else default_padding))
+            kwargs['padx'] = (pad_l, pad_r)
+            
+        if 'pady' not in kwargs:
+            pad_t = margin_top if margin_top is not None else (margin_vertical if margin_vertical is not None else (margin if margin is not None else default_padding))
+            pad_b = margin_bottom if margin_bottom is not None else (margin_vertical if margin_vertical is not None else (margin if margin is not None else default_padding))
+            kwargs['pady'] = (pad_t, pad_b)
         
         # Determine sticky value based on stretch flags and alignment
         sticky = ""
@@ -127,6 +138,8 @@ class GooeyPieContainer(GooeyPieObject):
                      row_span=child['row_span'], column_span=child['column_span'],
                      expand_horizontal=child['expand_horizontal'], expand_vertical=child['expand_vertical'],
                      align_horizontal=child['align_horizontal'], align_vertical=child['align_vertical'],
+                     margin=child['margin'], margin_horizontal=child['margin_horizontal'], margin_vertical=child['margin_vertical'],
+                     margin_left=child['margin_left'], margin_top=child['margin_top'], margin_right=child['margin_right'], margin_bottom=child['margin_bottom'],
                      **child['kwargs'])
         self._pending_children = []
 
@@ -277,31 +290,51 @@ class ScrollableFrame(GooeyPieContainer, GooeyPieWidget):
         self._apply_pending_container_properties()
         self._process_pending_children()
 
-    def add(self, widget, x, y, **kwargs):
+    def add(self, widget, column, row, row_span=1, column_span=1, expand_horizontal=False, expand_vertical=False, align_horizontal="center", align_vertical="center", 
+            margin=None, margin_horizontal=None, margin_vertical=None, margin_left=None, margin_top=None, margin_right=None, margin_bottom=None, **kwargs):
         """Adds a widget to the scrollable frame, ensuring proper padding for the scrollbar."""
         if self._ctk_object is None:
-            super().add(widget, x, y, **kwargs)
+            super().add(widget, column, row, row_span=row_span, column_span=column_span, expand_horizontal=expand_horizontal, expand_vertical=expand_vertical, 
+                        align_horizontal=align_horizontal, align_vertical=align_vertical, margin=margin, margin_horizontal=margin_horizontal, margin_vertical=margin_vertical, 
+                        margin_left=margin_left, margin_top=margin_top, margin_right=margin_right, margin_bottom=margin_bottom, **kwargs)
             return
 
-        # Get existing padx or default
-        padx = kwargs.get('padx', WIDGET_PADDING)
-        
-        # Add extra padding to the right (second element of tuple)
         # Scrollbar is usually around 15-20px
         extra_padding = 10
         
-        if isinstance(padx, int):
-            # Convert int to tuple (left, right) and add extra to right
-            kwargs['padx'] = (padx, padx + extra_padding)
-        elif isinstance(padx, (tuple, list)) and len(padx) == 2:
-            # Add to existing right padding
-            kwargs['padx'] = (padx[0], padx[1] + extra_padding)
+        # Override the right margin/padding
+        if margin_right is not None:
+            margin_right += extra_padding
+        elif margin_horizontal is not None:
+            margin_right = margin_horizontal + extra_padding
+            margin_left = margin_horizontal
+            margin_horizontal = None
+        elif margin is not None:
+            margin_right = margin + extra_padding
+            margin_left = margin
+            margin_top = margin
+            margin_bottom = margin
+            margin = None
+        elif 'padx' in kwargs:
+            padx = kwargs['padx']
+            if isinstance(padx, int):
+                kwargs['padx'] = (padx, padx + extra_padding)
+            elif isinstance(padx, (tuple, list)) and len(padx) == 2:
+                kwargs['padx'] = (padx[0], padx[1] + extra_padding)
+        else:
+            default_padding = getattr(widget, '_default_grid_padding', WIDGET_PADDING)
+            margin_right = default_padding + extra_padding
+            margin_left = default_padding
+            margin_top = default_padding
+            margin_bottom = default_padding
             
-        super().add(widget, x, y, **kwargs)
+        super().add(widget, column, row, row_span=row_span, column_span=column_span, expand_horizontal=expand_horizontal, expand_vertical=expand_vertical, 
+                    align_horizontal=align_horizontal, align_vertical=align_vertical, margin=margin, margin_horizontal=margin_horizontal, margin_vertical=margin_vertical, 
+                    margin_left=margin_left, margin_top=margin_top, margin_right=margin_right, margin_bottom=margin_bottom, **kwargs)
         
         # Update column weights
-        if x > self._max_column:
-            self._max_column = x
+        if column > self._max_column:
+            self._max_column = column
             
         grid_master = self._get_grid_master()
         for i in range(self._max_column):
