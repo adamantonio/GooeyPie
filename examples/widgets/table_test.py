@@ -1,6 +1,3 @@
-from customtkinter.windows.widgets import theme
-from customtkinter.windows.widgets import theme
-from customtkinter.windows.widgets import theme
 import gooeypie as gp
 
 def select_event(event):
@@ -31,6 +28,8 @@ tbl.data = [
     ["Alice", "Brown", 28]
 ]
 tbl.height = 10
+tbl.width = 300
+tbl.set_column_widths(40, 40, 40)
 tbl.on_change(select_event)
 
 btn_add = gp.Button("Add Row", add_row)
@@ -40,7 +39,7 @@ theme_switch = gp.Switch("Dark mode")
 theme_switch.value = True if app.theme == "dark" else False
 theme_switch.on_change(switch_theme)
 
-app.add(tbl, 1, 1, column_span=4, expand_horizontal=True)
+app.add(tbl, 1, 1, column_span=4) #, expand_horizontal=True)
 app.add(btn_add, 1, 2)
 app.add(btn_remove, 2, 2)
 app.add(btn_clear, 3, 2)

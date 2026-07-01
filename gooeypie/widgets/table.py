@@ -143,6 +143,13 @@ class Table(GooeyPieWidget):
         self._treeview.bind('<ButtonRelease-1>', self._update_scrollbar)
         self._treeview.bind('<<TreeviewSelect>>', self._on_select)
 
+        if 'width' in self._constructor_kwargs:
+            self._ctk_object.configure(width=self._constructor_kwargs['width'])
+            self._ctk_object.grid_propagate(False)
+            # update_idletasks needed to correctly determine reqheight for the first time
+            self._ctk_object.update_idletasks()
+            self._update_height()
+
         # Populate cached data
         if self._cached_data:
             for row in self._cached_data:
@@ -315,7 +322,22 @@ class Table(GooeyPieWidget):
     def height(self, lines):
         if self._ctk_object:
             self._treeview.configure(height=lines)
+            self._update_height()
         self._constructor_kwargs['height'] = lines
+
+    @property
+    def width(self):
+        """Gets or sets the width of the table in pixels"""
+        if self._ctk_object:
+            return self._ctk_object.cget('width')
+        return self._constructor_kwargs.get('width')
+
+    @width.setter
+    def width(self, value):
+        if self._ctk_object:
+            self._ctk_object.configure(width=value)
+            self._ctk_object.grid_propagate(False)
+        self._constructor_kwargs['width'] = value
 
     @property
     def disabled(self):
@@ -347,9 +369,13 @@ class Table(GooeyPieWidget):
             self._clear_sort_icons()
 
     def _update_scrollbar(self, _event=None):
-        """Adds/removes the horizontal scrollbar as needed"""
+        """Adds/removes the scrollbars as needed"""
         horizontal_scrollbar_needed = self._treeview.xview() != (0.0, 1.0)
+        vertical_scrollbar_needed = self._treeview.yview() != (0.0, 1.0)
+
         row_span = 1 if horizontal_scrollbar_needed else 2
+        col_span = 1 if vertical_scrollbar_needed else 2
+
         bw = self._ctk_object.cget("border_width")
         bw = int(bw) if bw else 2
 
@@ -358,13 +384,35 @@ class Table(GooeyPieWidget):
         self._h_scrollbar.grid_remove()
 
         tree_pady = (bw, 0) if horizontal_scrollbar_needed else (bw, bw)
-        self._treeview.grid(row=0, column=0, rowspan=row_span, sticky='nsew', padx=(bw, 0), pady=tree_pady)
+        tree_padx = (bw, 0) if vertical_scrollbar_needed else (bw, bw)
+        self._treeview.grid(row=0, column=0, rowspan=row_span, columnspan=col_span, sticky='nsew', padx=tree_padx, pady=tree_pady)
         
-        vscroll_pady = (bw, 0) if horizontal_scrollbar_needed else (bw, bw)
-        self._v_scrollbar.grid(row=0, column=1, rowspan=row_span, sticky='ns', padx=(0, bw), pady=vscroll_pady)
+        if vertical_scrollbar_needed:
+            vscroll_pady = (bw, 0) if horizontal_scrollbar_needed else (bw, bw)
+            self._v_scrollbar.grid(row=0, column=1, rowspan=row_span, sticky='ns', padx=(0, bw), pady=vscroll_pady)
         
         if horizontal_scrollbar_needed:
-            self._h_scrollbar.grid(row=1, column=0, sticky='ew', padx=(bw, 0), pady=(0, bw))
+            hscroll_padx = (bw, 0) if vertical_scrollbar_needed else (bw, bw)
+            self._h_scrollbar.grid(row=1, column=0, columnspan=col_span, sticky='ew', padx=hscroll_padx, pady=(0, bw))
+
+        self._update_height()
+
+    def _update_height(self):
+        """Updates the height of the container if it's fixed in width"""
+        if not self._ctk_object or self._ctk_object.grid_propagate():
+            return
+            
+        bw = self._ctk_object.cget("border_width")
+        bw = int(bw) if bw else 2
+        
+        req_h = self._treeview.winfo_reqheight()
+        total_h = req_h + (bw * 2)
+        
+        horizontal_scrollbar_needed = self._treeview.xview() != (0.0, 1.0)
+        if horizontal_scrollbar_needed:
+            total_h += self._h_scrollbar.winfo_reqheight() + bw
+            
+        self._ctk_object.configure(height=total_h)
 
     def _sort_data(self, column_id):
         """When the column heading is clicked on, the data are sorted according to that column"""
@@ -427,6 +475,7 @@ class Table(GooeyPieWidget):
         self.clear()
         for line in values:
             self._treeview.insert('', 'end', values=line)
+        self._update_scrollbar()
 
     @property
     def multiple_selection(self):
@@ -522,6 +571,7 @@ class Table(GooeyPieWidget):
 
         # Clear any sort icons if new data is added
         self._clear_sort_icons()
+        self._update_scrollbar()
 
     def add_row(self, data):
         """Adds a row of data to the end of the table"""
@@ -538,6 +588,7 @@ class Table(GooeyPieWidget):
             return
         for row_id in self._treeview.get_children():
             self._treeview.delete(row_id)
+        self._update_scrollbar()
 
     def remove_row(self, index):
         """Removes the specified row from the table"""
@@ -556,6 +607,7 @@ class Table(GooeyPieWidget):
                              f'The value of index was {index}')
         row_data = self._treeview.item(row_ids[index])['values']
         self._treeview.delete(row_ids[index])
+        self._update_scrollbar()
         return row_data
 
     def remove_selected(self):
@@ -565,6 +617,7 @@ class Table(GooeyPieWidget):
             
         row_data = self.selected
         self._treeview.delete(*self._treeview.selection())
+        self._update_scrollbar()
         return row_data
 
     def set_column_width(self, column, width):

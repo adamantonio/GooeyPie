@@ -1,7 +1,7 @@
 import gooeypie as gp
 
 app = gp.GooeyPieApp("Table Styles")
-# app.theme = "light"
+app.theme = "light"
 
 # Header
 code_header = gp.Label("Code")

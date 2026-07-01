@@ -7,6 +7,7 @@ def change_theme(e):
         app.theme = "dark"
         
     dp.clear()
+    tb.select_none()
 
 app = gp.GooeyPieApp("Widget Gallery")
 app.theme = "dark"
@@ -26,6 +27,13 @@ textbox.height = 120
 
 dp = gp.DatePicker()
 
+tb = gp.Table(["Header 1", "Header 2"])
+tb.add_row(["Data 1", "Data 2"])
+tb.add_row(["Data 3", "Data 4"])
+tb.add_row(["Data 5", "Data 6"])
+tb.add_row(["Data 7", "Data 8"])
+tb.height = 6
+
 widgets.append(gp.Button("Button", None))
 widgets.append(gp.ButtonGroup(['Button 1', 'Button 2', 'Button 3']))
 widgets.append(gp.Checkbox("Checkbox"))
@@ -41,10 +49,14 @@ widgets.append(gp.Slider(1, 10))
 widgets.append(gp.Switch("Switch"))
 widgets.append(textbox)
 widgets.append(dp)
+widgets.append(tb)
+
+cols = 6
+rows = (len(widgets) + 4) // 5
 
 for i, widget in enumerate(widgets):
-    col = i // 3 + 1
-    row = i % 3 + 1
+    col = i % cols + 1
+    row = i // cols + 1
 
     if widget.__class__.__name__ in ['NOTDropdown', 'DatePicker']:
         app.add(widget, col, row, align_vertical='top')
@@ -58,6 +70,6 @@ theme_switch.on_change(change_theme)
 
 app.add(theme_switch, 1, 4, column_span=5)
 
-app.set_row_weights(1, 1, 1, 0)
+# app.set_row_weights(*([1]*rows + [0]))
 
 app.run()
