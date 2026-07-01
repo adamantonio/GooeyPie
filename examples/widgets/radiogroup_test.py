@@ -3,7 +3,6 @@ import gooeypie as gp
 app = gp.GooeyPieApp('Radiogroup Test')
 
 main_container = gp.Frame()
-main_container.set_column_weights(1)
 
 def on_change(event):
     print(f"Selection changed to: {event.widget.selected} (Index: {event.widget.selected_index})")
@@ -69,8 +68,7 @@ def change_command(event):
 btn_cmd = gp.Button("Set New Command", change_command)
 main_container.add(btn_cmd, 1, 8)
 
-app.set_column_weights(1)
-app.set_row_weights(1)
 app.add(main_container, 1, 1)
+app.set_row_weights(1)
 
 app.run()
