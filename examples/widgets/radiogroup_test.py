@@ -68,6 +68,21 @@ def change_command(event):
 btn_cmd = gp.Button("Set New Command", change_command)
 main_container.add(btn_cmd, 1, 8)
 
+
+def toggle_disabled(event):
+    rg_vertical.disabled = not rg_vertical.disabled
+
+btn_disabled = gp.Button("Toggle Disabled", toggle_disabled)
+main_container.add(btn_disabled, 1, 9)
+
+
+def select_none(event):
+    rg_vertical.selected = None
+
+btn_none = gp.Button("Select None", select_none)
+main_container.add(btn_none, 1, 10)
+
+
 app.add(main_container, 1, 1)
 app.set_row_weights(1)
 

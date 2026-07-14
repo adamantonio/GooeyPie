@@ -153,10 +153,17 @@ class GooeyPieContainer(GooeyPieObject):
 
     def set_column_weights(self, *weights):
         """Sets the weight of all columns at once. The number of weights must match the number of columns."""
+        if self._num_columns == 0:
+            raise ValueError(
+                "Cannot set column weights: this container currently has 0 columns. "
+                "Ensure that all widgets have been added before calling set_column_weights()."
+            )
+
         if len(weights) != self._num_columns:
             raise ValueError(
                 f"set_column_weights() expected {self._num_columns} argument(s) "
-                f"(one per column) but received {len(weights)}."
+                f"(one per column) but received {len(weights)}. "
+                "Ensure that all widgets have been added before calling set_column_weights()."
             )
         for i, weight in enumerate(weights, start=1):
             self._set_column_weight(i, weight)
@@ -170,10 +177,17 @@ class GooeyPieContainer(GooeyPieObject):
 
     def set_row_weights(self, *weights):
         """Sets the weight of all rows at once. The number of weights must match the number of rows."""
+        if self._num_rows == 0:
+            raise ValueError(
+                "Cannot set row weights: this container currently has 0 rows. "
+                "Ensure that all widgets have been added before calling set_row_weights()."
+            )
+
         if len(weights) != self._num_rows:
             raise ValueError(
                 f"set_row_weights() expected {self._num_rows} argument(s) "
                 f"(one per row) but received {len(weights)}."
+                "Ensure that all widgets have been added before calling set_row_weights()."
             )
         for i, weight in enumerate(weights, start=1):
             self._set_row_weight(i, weight)
