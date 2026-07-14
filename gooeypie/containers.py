@@ -19,6 +19,18 @@ class GooeyPieContainer(GooeyPieObject):
         """Returns the widget that acts as the parent for the grid (geometry master)."""
         return self._grid_master or self._ctk_object
 
+    @property
+    def disabled(self):
+        return getattr(self, '_disabled', False)
+
+    @disabled.setter
+    def disabled(self, value):
+        self._disabled = bool(value)
+        for child in self._children:
+            child.disabled = self._disabled
+        for child_dict in self._pending_children:
+            child_dict['widget'].disabled = self._disabled
+
     def add(self, widget, column, row, row_span=1, column_span=1, expand_horizontal=False, expand_vertical=False, align_horizontal="center", align_vertical="center", 
             margin=None, margin_horizontal=None, margin_vertical=None, margin_left=None, margin_top=None, margin_right=None, margin_bottom=None, **kwargs):
         """Adds a widget to this container at grid position (column, row)."""
@@ -73,6 +85,8 @@ class GooeyPieContainer(GooeyPieObject):
             })
             self._num_columns = max(self._num_columns, column + column_span - 1)
             self._num_rows = max(self._num_rows, row + row_span - 1)
+            if getattr(self, '_disabled', False):
+                widget.disabled = True
             return
 
         # Create the widget if it hasn't been created
@@ -122,6 +136,9 @@ class GooeyPieContainer(GooeyPieObject):
         self._children.append(widget)
         self._num_columns = max(self._num_columns, column + column_span - 1)
         self._num_rows = max(self._num_rows, row + row_span - 1)
+
+        if getattr(self, '_disabled', False):
+            widget.disabled = True
 
         # Auto-assign weight=1 to each column spanned, unless the user has set a custom weight
         for col in range(column, column + column_span):
@@ -429,3 +446,15 @@ class Container(GooeyPieContainer, GooeyPieWidget):
         self._apply_pending_container_properties()
         self._process_pending_children()
         self._update_sizes()
+
+    def _set_property(self, key, value):
+        super()._set_property(key, value)
+        if key == 'border_width' and self._ctk_object:
+            self._grid_master.pack(expand=True, fill="both", padx=(value, value + 1), pady=(value, value + 1))
+
+    def _apply_pending_properties(self):
+        super()._apply_pending_properties()
+        if self._ctk_object:
+            bw = self._ctk_object.cget('border_width')
+            if bw > 0:
+                self._grid_master.pack(expand=True, fill="both", padx=(bw, bw + 1), pady=(bw, bw + 1))
